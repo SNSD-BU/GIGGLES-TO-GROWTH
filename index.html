@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giggles to Growth</title>
+    <link rel="icon" type="image/png" href="GTG FAVICON.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <div class="nav-brand">
+                <img src="GTG LOGO.png" alt="Giggles to Growth Logo" class="logo">
+                <h1>Giggles to Growth</h1>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-links">
+                <a href="#health" class="active"><i class="fas fa-heartbeat"></i> Health</a>
+                <a href="#growth"><i class="fas fa-chart-line"></i> Growth</a>
+                <a href="#games"><i class="fas fa-gamepad"></i> Games</a>
+                <a href="#community"><i class="fas fa-users"></i> Community</a>
+                <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Health Monitoring Section -->
+            <section id="health" class="section active">
+                <h2>Health Monitoring</h2>
+                <div class="health-controls">
+                    <div class="health-input-container">
+                        <form id="health-input-form" class="health-form">
+                            <div class="form-group">
+                                <label for="metric-type">Metric Type</label>
+                                <select id="metric-type" required>
+                                    <option value="Weight">Weight</option>
+                                    <option value="Height">Height</option>
+                                    <option value="Temperature">Temperature</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="metric-value">Value</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="metric-value" step="0.1" required>
+                                    <span class="unit">kg</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="metric-date">Date</label>
+                                <input type="date" id="metric-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="metric-time">Time</label>
+                                <input type="time" id="metric-time" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="metric-notes">Notes (Optional)</label>
+                                <input type="text" id="metric-notes" placeholder="Add any additional notes...">
+                            </div>
+                            <button type="submit" class="submit-btn">Add Record</button>
+                        </form>
+                    </div>
+                    <div class="health-summary">
+                        <h3>Health Summary</h3>
+                        <div class="summary-cards">
+                            <div class="summary-card">
+                                <h4>Weight Trend</h4>
+                                <div class="trend-indicator" data-metric="Weight">
+                                    <span class="trend-value">--</span>
+                                    <span class="trend-icon"></span>
+                                </div>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Height Trend</h4>
+                                <div class="trend-indicator" data-metric="Height">
+                                    <span class="trend-value">--</span>
+                                    <span class="trend-icon"></span>
+                                </div>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Temperature Status</h4>
+                                <div class="status-indicator" data-metric="Temperature">
+                                    <span class="status-value">--</span>
+                                    <span class="status-icon"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bmi-calculator">
+                            <h3>BMI Calculator</h3>
+                            <div class="bmi-result">
+                                <div class="bmi-value">
+                                    <span class="value">--</span>
+                                    <span class="unit">kg/m²</span>
+                                </div>
+                                <div class="bmi-category">No data available</div>
+                            </div>
+                            <div class="bmi-scale">
+                                <div class="scale-item underweight">
+                                    <span class="label">Underweight</span>
+                                    <span class="range">&lt; 18.5</span>
+                                </div>
+                                <div class="scale-item normal">
+                                    <span class="label">Normal</span>
+                                    <span class="range">18.5 - 24.9</span>
+                                </div>
+                                <div class="scale-item overweight">
+                                    <span class="label">Overweight</span>
+                                    <span class="range">25 - 29.9</span>
+                                </div>
+                                <div class="scale-item obese">
+                                    <span class="label">Obese</span>
+                                    <span class="range">&gt; 30</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="health-metrics">
+                    <div class="metric-card" data-metric="Weight">
+                        <div class="metric-header">
+                            <h3>Weight</h3>
+                            <div class="metric-actions">
+                                <button class="filter-btn" title="Filter Records">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <button class="export-btn" title="Export Data">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="metric-value">15.5 kg</div>
+                        <div class="metric-chart">
+                            <canvas></canvas>
+                        </div>
+                        <div class="metric-records">
+                            <div class="records-header">
+                                <h4>Recent Records</h4>
+                                <div class="records-filter">
+                                    <select class="time-filter">
+                                        <option value="7">Last 7 days</option>
+                                        <option value="30">Last 30 days</option>
+                                        <option value="90">Last 90 days</option>
+                                        <option value="all">All time</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="records-list" data-metric="Weight">
+                                <!-- Records will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-card" data-metric="Height">
+                        <div class="metric-header">
+                            <h3>Height</h3>
+                            <div class="metric-actions">
+                                <button class="filter-btn" title="Filter Records">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <button class="export-btn" title="Export Data">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="metric-value">85 cm</div>
+                        <div class="metric-chart">
+                            <canvas></canvas>
+                        </div>
+                        <div class="metric-records">
+                            <div class="records-header">
+                                <h4>Recent Records</h4>
+                                <div class="records-filter">
+                                    <select class="time-filter">
+                                        <option value="7">Last 7 days</option>
+                                        <option value="30">Last 30 days</option>
+                                        <option value="90">Last 90 days</option>
+                                        <option value="all">All time</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="records-list" data-metric="Height">
+                                <!-- Records will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-card" data-metric="Temperature">
+                        <div class="metric-header">
+                            <h3>Temperature</h3>
+                            <div class="metric-actions">
+                                <button class="filter-btn" title="Filter Records">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <button class="export-btn" title="Export Data">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="metric-value">36.6°C</div>
+                        <div class="metric-chart">
+                            <canvas></canvas>
+                        </div>
+                        <div class="metric-records">
+                            <div class="records-header">
+                                <h4>Recent Records</h4>
+                                <div class="records-filter">
+                                    <select class="time-filter">
+                                        <option value="7">Last 7 days</option>
+                                        <option value="30">Last 30 days</option>
+                                        <option value="90">Last 90 days</option>
+                                        <option value="all">All time</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="records-list" data-metric="Temperature">
+                                <!-- Records will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Growth & Development Section -->
+            <section id="growth" class="section">
+                <h2>Growth & Development</h2>
+                <div class="growth-controls">
+                    <div class="milestone-input">
+                        <h3>Add New Milestone</h3>
+                        <form id="milestone-form" class="milestone-form">
+                            <div class="form-group">
+                                <label for="milestone-type">Type</label>
+                                <select id="milestone-type" required>
+                                    <option value="physical">Physical Development</option>
+                                    <option value="cognitive">Cognitive Development</option>
+                                    <option value="social">Social Development</option>
+                                    <option value="language">Language Development</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="milestone-title">Title</label>
+                                <input type="text" id="milestone-title" placeholder="e.g., First Steps" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="milestone-date">Date</label>
+                                <input type="date" id="milestone-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="milestone-description">Description</label>
+                                <textarea id="milestone-description" placeholder="Describe the milestone..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="milestone-photo">Photo (Optional)</label>
+                                <input type="file" id="milestone-photo" accept="image/*">
+                            </div>
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-plus"></i>
+                                Add Milestone
+                            </button>
+                        </form>
+                    </div>
+                    <div class="development-summary">
+                        <h3>Development Summary</h3>
+                        <div class="summary-cards">
+                            <div class="summary-card">
+                                <h4>Physical</h4>
+                                <div class="milestone-count" data-type="physical">0</div>
+                                <div class="progress-bar">
+                                    <div class="progress" data-type="physical"></div>
+                                </div>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Cognitive</h4>
+                                <div class="milestone-count" data-type="cognitive">0</div>
+                                <div class="progress-bar">
+                                    <div class="progress" data-type="cognitive"></div>
+                                </div>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Social</h4>
+                                <div class="milestone-count" data-type="social">0</div>
+                                <div class="progress-bar">
+                                    <div class="progress" data-type="social"></div>
+                                </div>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Language</h4>
+                                <div class="milestone-count" data-type="language">0</div>
+                                <div class="progress-bar">
+                                    <div class="progress" data-type="language"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="milestone-timeline">
+                    <div class="timeline-header">
+                        <h3>Development Timeline</h3>
+                        <div class="timeline-filters">
+                            <select id="timeline-filter">
+                                <option value="all">All Types</option>
+                                <option value="physical">Physical</option>
+                                <option value="cognitive">Cognitive</option>
+                                <option value="social">Social</option>
+                                <option value="language">Language</option>
+                            </select>
+                            <select id="timeline-sort">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="timeline-content">
+                        <!-- Timeline items will be added dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Games Section -->
+            <section id="games" class="section">
+                <h2>Interactive Games</h2>
+                <div class="games-grid">
+                    <div class="game-card" data-game="color">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%234ECDC4'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EColor Recognition%3C/text%3E%3C/svg%3E" alt="Color Recognition Game">
+                        <h3>Color Recognition</h3>
+                        <p>Learn colors through fun interactive games</p>
+                        <button class="play-btn">Play Now</button>
+                    </div>
+                    <div class="game-card" data-game="memory">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23FFE66D'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EMemory Match%3C/text%3E%3C/svg%3E" alt="Memory Game">
+                        <h3>Memory Match</h3>
+                        <p>Improve memory with matching games</p>
+                        <button class="play-btn">Play Now</button>
+                    </div>
+                    <div class="game-card" data-game="counting">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23FF6B6B'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3ECounting%3C/text%3E%3C/svg%3E" alt="Counting Game">
+                        <h3>Counting Fun</h3>
+                        <p>Learn numbers and counting in a playful way</p>
+                        <button class="play-btn">Play Now</button>
+                    </div>
+                    <div class="game-card" data-game="shapes">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%239B59B6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EShape Recognition%3C/text%3E%3C/svg%3E" alt="Shape Recognition Game">
+                        <h3>Shape Recognition</h3>
+                        <p>Learn about different shapes and patterns</p>
+                        <button class="play-btn">Play Now</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Community Section -->
+            <section id="community" class="section">
+                <div class="forum-container">
+                    <div class="forum-header">
+                        <h2>Parent Forum</h2>
+                        <div class="forum-controls">
+                            <input type="text" placeholder="Search discussions..." class="search-input">
+                            <button class="new-post-btn">
+                                <i class="fas fa-plus"></i>
+                                New Post
+                            </button>
+                        </div>
+                    </div>
+                    <div class="forum-posts">
+                        <!-- Forum posts will be dynamically added here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="section">
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3>Appearance</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Dark Mode</label>
+                                <p class="setting-description">Switch between light and dark theme</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="darkModeToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Font Size</label>
+                                <p class="setting-description">Adjust the text size</p>
+                            </div>
+                            <select id="font-size-select" class="setting-select">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Notifications</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Health Reminders</label>
+                                <p class="setting-description">Get reminders for health record updates</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="health-reminders-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Milestone Alerts</label>
+                                <p class="setting-description">Get notified about upcoming milestones</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="milestone-alerts-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Data Management</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Import Data</label>
+                                <p class="setting-description">Import data from a JSON file</p>
+                            </div>
+                            <input type="file" id="import-data-input" accept=".json" style="display: none;">
+                            <button class="import-data-btn">Import</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Export All Data</label>
+                                <p class="setting-description">Download all your data as a JSON file</p>
+                            </div>
+                            <button class="export-data-btn">Export</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Clear All Data</label>
+                                <p class="setting-description">Delete all stored data (cannot be undone)</p>
+                            </div>
+                            <button class="clear-data-btn">Clear Data</button>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>About</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Version</label>
+                                <p class="setting-description">1.0.0</p>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label>Privacy Policy</label>
+                                <p class="setting-description">Read our privacy policy</p>
+                            </div>
+                            <button class="privacy-policy-btn">View</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About Giggles to Growth</h4>
+                    <p>Your family's smart companion for tracking growth, health, and development milestones.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#health">Health Monitoring</a></li>
+                        <li><a href="#growth">Growth & Development</a></li>
+                        <li><a href="#games">Interactive Games</a></li>
+                        <li><a href="#community">Parent Forum</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Email: support@gigglestogrowth.com</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Giggles to Growth. All rights reserved.</p>
+            </div>
+        </footer>
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav">
+            <a href="#health" class="active"><i class="fas fa-heartbeat"></i></a>
+            <a href="#growth"><i class="fas fa-chart-line"></i></a>
+            <a href="#games"><i class="fas fa-gamepad"></i></a>
+            <a href="#community"><i class="fas fa-users"></i></a>
+            <a href="#settings"><i class="fas fa-cog"></i></a>
+        </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
