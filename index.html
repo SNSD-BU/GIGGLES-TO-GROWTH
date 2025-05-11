@@ -17,17 +17,54 @@
                 <img src="GTG LOGO.png" alt="Giggles to Growth Logo" class="logo">
                 <h1>Giggles to Growth</h1>
             </div>
-            <button class="mobile-menu-btn">
-                <i class="fas fa-bars"></i>
-            </button>
+            <a href="#settings" class="settings-link"><i class="fas fa-cog"></i></a>
+        </nav>
+
+        <!-- Back Button (Hidden by default) -->
+        <button class="back-btn" style="display: none;">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+
+        <!-- Video Carousel -->
+        <div class="video-carousel">
+            <div class="carousel-container">
+                <video class="carousel-video active" src="VID1.mp4" autoplay muted loop></video>
+                <video class="carousel-video" src="VID2.mp4" muted loop></video>
+                <video class="carousel-video" src="VID3.mp4" muted loop></video>
+                <video class="carousel-video" src="VID4.mp4" muted loop></video>
+                <video class="carousel-video" src="VID5.mp4" muted loop></video>
+            </div>
+            <div class="video-controls">
+                <button class="video-nav-btn prev-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="video-dots">
+                    <div class="video-dot active"></div>
+                    <div class="video-dot"></div>
+                    <div class="video-dot"></div>
+                    <div class="video-dot"></div>
+                    <div class="video-dot"></div>
+                </div>
+                <button class="video-nav-btn next-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Secondary Navigation -->
+        <nav class="secondary-nav">
             <div class="nav-links">
                 <a href="#health" class="active"><i class="fas fa-heartbeat"></i> Health</a>
                 <a href="#growth"><i class="fas fa-chart-line"></i> Growth</a>
                 <a href="#games"><i class="fas fa-gamepad"></i> Games</a>
                 <a href="#community"><i class="fas fa-users"></i> Community</a>
-                <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
             </div>
         </nav>
+
+        <!-- Scroll to Top Button -->
+        <button id="scrollToTop" class="scroll-to-top">
+            <i class="fas fa-arrow-up"></i>
+        </button>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -371,7 +408,7 @@
             </section>
 
             <!-- Settings Section -->
-            <section id="settings" class="section">
+            <section id="settings" class="section settings-section">
                 <div class="settings-container">
                     <div class="settings-group">
                         <h3>Appearance</h3>
@@ -478,10 +515,10 @@
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="https://snsd-bu.github.io/GIGGLES-TO-GROWTH/#health">Health Monitoring</a></li>
-                        <li><a href="https://snsd-bu.github.io/GIGGLES-TO-GROWTH/#growth">Growth & Development</a></li>
-                        <li><a href="https://snsd-bu.github.io/GIGGLES-TO-GROWTH/#games">Interactive Games</a></li>
-                        <li><a href="https://snsd-bu.github.io/GIGGLES-TO-GROWTH/#community">Parent Forum</a></li>
+                        <li><a href="#health">Health Monitoring</a></li>
+                        <li><a href="#growth">Growth & Development</a></li>
+                        <li><a href="#games">Interactive Games</a></li>
+                        <li><a href="#community">Parent Forum</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -498,15 +535,6 @@
                 <p>&copy; 2024 Giggles to Growth. All rights reserved.</p>
             </div>
         </footer>
-
-        <!-- Mobile Navigation -->
-        <nav class="mobile-nav">
-            <a href="#health" class="active"><i class="fas fa-heartbeat"></i></a>
-            <a href="#growth"><i class="fas fa-chart-line"></i></a>
-            <a href="#games"><i class="fas fa-gamepad"></i></a>
-            <a href="#community"><i class="fas fa-users"></i></a>
-            <a href="#settings"><i class="fas fa-cog"></i></a>
-        </nav>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
