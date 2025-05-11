@@ -426,12 +426,15 @@ function addHealthRecord(record) {
 // Update unit display
 function updateUnitDisplay() {
     const type = metricTypeSelect.value;
+    const unitDisplay = document.querySelector('.input-with-unit .unit');
+    if (!unitDisplay) return;
+    
     const units = {
         Weight: 'kg',
         Height: 'cm',
         Temperature: '°C'
     };
-    unitDisplay.textContent = units[type];
+    unitDisplay.textContent = units[type] || '';
 }
 
 // Update chart for a specific metric
