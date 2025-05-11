@@ -71,8 +71,285 @@
             <!-- Health Monitoring Section -->
             <section id="health" class="section active">
                 <h2>Health Monitoring</h2>
+                
+                <!-- Pediatric Vital Signs Reference Chart -->
+                <div class="vital-signs-chart">
+                    <div class="section-header">
+                        <h3>Pediatric Vital Signs Reference Chart</h3>
+                    </div>
+                    <div class="vital-signs-buttons">
+                        <button class="vital-sign-btn" data-type="heart-rate">
+                            <i class="fas fa-heartbeat"></i>
+                            Heart Rate (beats/min)
+                        </button>
+                        <button class="vital-sign-btn" data-type="respiratory-rate">
+                            <i class="fas fa-lungs"></i>
+                            Respiratory Rate (breaths/min)
+                        </button>
+                        <button class="vital-sign-btn" data-type="blood-pressure">
+                            <i class="fas fa-stethoscope"></i>
+                            Blood Pressure (mmHg)
+                        </button>
+                        <button class="vital-sign-btn" data-type="temperature">
+                            <i class="fas fa-thermometer-half"></i>
+                            Temperature (°C)
+                        </button>
+                        <button class="vital-sign-btn" data-type="oxygen-saturation">
+                            <i class="fas fa-lungs-virus"></i>
+                            Oxygen Saturation (SpO₂)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vital Signs Modals -->
+                <div class="vital-signs-modal" id="heart-rate-modal">
+                    <div class="modal-content">
+                        <h3>Heart Rate Reference Values</h3>
+                        <table class="vital-signs-table">
+                            <thead>
+                                <tr>
+                                    <th>Age</th>
+                                    <th>Awake (bpm)</th>
+                                    <th>Asleep (bpm)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Neonate (&lt;28 d)</td><td>100–205</td><td>90–160</td></tr>
+                                <tr><td>Infant (&lt;1 y)</td><td>100–190</td><td>–</td></tr>
+                                <tr><td>Toddler (1–2 y)</td><td>98–140</td><td>80–120</td></tr>
+                                <tr><td>Preschool (3–5 y)</td><td>80–120</td><td>65–100</td></tr>
+                                <tr><td>School-age (6–11 y)</td><td>75–118</td><td>58–90</td></tr>
+                                <tr><td>Adolescent (12–15 y)</td><td>60–100</td><td>50–90</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="modal-footer">
+                            <p>Source: PALS Guidelines (2015)</p>
+                            <button class="close-modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vital-signs-modal" id="respiratory-rate-modal">
+                    <div class="modal-content">
+                        <h3>Respiratory Rate Reference Values</h3>
+                        <table class="vital-signs-table">
+                            <thead>
+                                <tr>
+                                    <th>Age</th>
+                                    <th>Normal (breaths/min)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Neonate (&lt;28 d)</td><td>30–53</td></tr>
+                                <tr><td>Infant (&lt;1 y)</td><td>30–53</td></tr>
+                                <tr><td>Toddler (1–2 y)</td><td>22–37</td></tr>
+                                <tr><td>Preschool (3–5 y)</td><td>20–28</td></tr>
+                                <tr><td>School-age (6–11 y)</td><td>18–25</td></tr>
+                                <tr><td>Adolescent (12–15 y)</td><td>12–20</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="modal-footer">
+                            <p>Source: PALS Guidelines (2015)</p>
+                            <button class="close-modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vital-signs-modal" id="blood-pressure-modal">
+                    <div class="modal-content">
+                        <h3>Blood Pressure Reference Values</h3>
+                        <table class="vital-signs-table">
+                            <thead>
+                                <tr>
+                                    <th>Age</th>
+                                    <th>Systolic</th>
+                                    <th>Diastolic</th>
+                                    <th>Systolic Hypotension</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Birth (&lt;1 kg)</td><td>39–59</td><td>16–36</td><td>&lt;40–50</td></tr>
+                                <tr><td>Birth (3 kg)</td><td>60–76</td><td>31–45</td><td>&lt;50</td></tr>
+                                <tr><td>Neonate (96 h)</td><td>67–84</td><td>35–53</td><td>&lt;60</td></tr>
+                                <tr><td>Infant (1–12 mo)</td><td>72–104</td><td>37–56</td><td>&lt;70</td></tr>
+                                <tr><td>Toddler (1–2 y)</td><td>86–106</td><td>42–63</td><td>&lt;70 + (age × 2)</td></tr>
+                                <tr><td>Preschool (3–5 y)</td><td>89–112</td><td>46–72</td><td>–</td></tr>
+                                <tr><td>School-age (6–9 y)</td><td>97–115</td><td>57–76</td><td>–</td></tr>
+                                <tr><td>Preadolescent (10–11 y)</td><td>102–120</td><td>61–80</td><td>&lt;90</td></tr>
+                                <tr><td>Adolescent (12–15 y)</td><td>110–131</td><td>64–83</td><td>–</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="modal-footer">
+                            <p>Source: PALS Guidelines (2015), AAP 2017 Guidelines</p>
+                            <button class="close-modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vital-signs-modal" id="temperature-modal">
+                    <div class="modal-content">
+                        <h3>Temperature Reference Values</h3>
+                        <table class="vital-signs-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Normal (°C)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Rectal</td><td>36.6–38.0</td></tr>
+                                <tr><td>Tympanic</td><td>35.8–38.0</td></tr>
+                                <tr><td>Oral</td><td>35.5–37.5</td></tr>
+                                <tr><td>Axillary</td><td>36.5–37.5</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="modal-notes">
+                            <h4>Notes:</h4>
+                            <ul>
+                                <li>Screening: axillary, temporal, tympanic (less accurate)</li>
+                                <li>Definitive: rectal & oral (more accurate)</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <p>Source: CPS Position Statement on Pediatric Temperature Measurement (2015)</p>
+                            <button class="close-modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vital-signs-modal" id="oxygen-saturation-modal">
+                    <div class="modal-content">
+                        <h3>Oxygen Saturation (SpO₂) Reference Values</h3>
+                        <div class="modal-notes">
+                            <ul>
+                                <li>SpO₂ is lower in immediate newborns.</li>
+                                <li>Beyond newborns, values below 90–92% may indicate a respiratory issue or cyanotic heart disease.</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <p>Source: PALS Guidelines (2015), CPS Position Statement (2015)</p>
+                            <button class="close-modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pediatric Clinics Section -->
+                <div class="pediatric-clinics">
+                    <div class="section-header">
+                        <h3>Pediatric Clinics Near You</h3>
+                    </div>
+                    <div class="clinics-grid">
+                        <div class="clinic-card">
+                            <div class="clinic-icon">
+                                <i class="fas fa-hospital"></i>
+                            </div>
+                            <h4>Sunshine Pediatrics</h4>
+                            <p class="clinic-address">
+                                <i class="fas fa-map-marker-alt"></i>
+                                123 Health Street, Suite 100
+                            </p>
+                            <p class="clinic-phone">
+                                <i class="fas fa-phone"></i>
+                                (555) 123-4567
+                            </p>
+                            <p class="clinic-hours">
+                                <i class="fas fa-clock"></i>
+                                Mon-Fri: 8AM-6PM, Sat: 9AM-1PM
+                            </p>
+                        </div>
+
+                        <div class="clinic-card">
+                            <div class="clinic-icon">
+                                <i class="fas fa-hospital"></i>
+                            </div>
+                            <h4>Rainbow Children's Clinic</h4>
+                            <p class="clinic-address">
+                                <i class="fas fa-map-marker-alt"></i>
+                                456 Care Avenue, Building B
+                            </p>
+                            <p class="clinic-phone">
+                                <i class="fas fa-phone"></i>
+                                (555) 234-5678
+                            </p>
+                            <p class="clinic-hours">
+                                <i class="fas fa-clock"></i>
+                                Mon-Fri: 7AM-7PM, Sat-Sun: 9AM-3PM
+                            </p>
+                        </div>
+
+                        <div class="clinic-card">
+                            <div class="clinic-icon">
+                                <i class="fas fa-hospital"></i>
+                            </div>
+                            <h4>Little Stars Pediatrics</h4>
+                            <p class="clinic-address">
+                                <i class="fas fa-map-marker-alt"></i>
+                                789 Wellness Road, Suite 200
+                            </p>
+                            <p class="clinic-phone">
+                                <i class="fas fa-phone"></i>
+                                (555) 345-6789
+                            </p>
+                            <p class="clinic-hours">
+                                <i class="fas fa-clock"></i>
+                                Mon-Fri: 8AM-5PM, Sat: 8AM-12PM
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Common Illnesses Articles Section -->
+                <div class="common-illnesses">
+                    <div class="section-header">
+                        <h3>Common Childhood Illnesses</h3>
+                    </div>
+                    <div class="articles-grid">
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-thermometer-half"></i>
+                            </div>
+                            <h4>Identifying Child Cold Symptoms</h4>
+                            <p class="article-description">
+                                Learn how to recognize the signs of a common cold in children and when to seek medical attention.
+                            </p>
+                            <a href="https://www.webmd.com/children/identify-child-cold-symptoms" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-baby"></i>
+                            </div>
+                            <h4>Understanding Gassy Baby Symptoms</h4>
+                            <p class="article-description">
+                                Discover common causes of gas in babies and effective ways to help your little one feel better.
+                            </p>
+                            <a href="https://www.whattoexpect.com/first-year/care/gassy-baby/" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-baby"></i>
+                            </div>
+                            <h4>Diaper Changing Guide</h4>
+                            <p class="article-description">
+                                A step-by-step guide to changing your baby's diaper safely and efficiently.
+                            </p>
+                            <a href="https://www.whattoexpect.com/first-year/diapering/how-to-change-a-diaper/" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
+                    </div>
+                </div>
+
                 <div class="health-controls">
                     <div class="health-input-container">
+                        <div class="section-header">
+                            <h3>Record Health Metrics</h3>
+                        </div>
                         <form id="health-input-form" class="health-form">
                             <div class="form-group">
                                 <label for="metric-type">Metric Type</label>
@@ -105,7 +382,9 @@
                         </form>
                     </div>
                     <div class="health-summary">
+                        <div class="section-header">
                         <h3>Health Summary</h3>
+                        </div>
                         <div class="summary-cards">
                             <div class="summary-card">
                                 <h4>Weight Trend</h4>
@@ -267,7 +546,9 @@
                 <h2>Growth & Development</h2>
                 <div class="growth-controls">
                     <div class="milestone-input">
+                        <div class="section-header">
                         <h3>Add New Milestone</h3>
+                        </div>
                         <form id="milestone-form" class="milestone-form">
                             <div class="form-group">
                                 <label for="milestone-type">Type</label>
@@ -301,7 +582,9 @@
                         </form>
                     </div>
                     <div class="development-summary">
+                        <div class="section-header">
                         <h3>Development Summary</h3>
+                        </div>
                         <div class="summary-cards">
                             <div class="summary-card">
                                 <h4>Physical</h4>
@@ -336,7 +619,9 @@
                 </div>
                 <div class="milestone-timeline">
                     <div class="timeline-header">
+                        <div class="section-header">
                         <h3>Development Timeline</h3>
+                        </div>
                         <div class="timeline-filters">
                             <select id="timeline-filter">
                                 <option value="all">All Types</option>
@@ -352,7 +637,130 @@
                         </div>
                     </div>
                     <div class="timeline-content">
-                        <!-- Timeline items will be added dynamically -->
+                        <!-- Timeline items will be added here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Development Articles -->
+                <div class="development-articles">
+                    <div class="article-card">
+                        <img src="1-3M.jpg" alt="1-3 Months Development">
+                        <div class="article-content">
+                            <h3>1-3 Months Development</h3>
+                            <p>Learn about your baby's development during the first three months, including motor skills, communication, and social development.</p>
+                            <a href="https://choc.org/primary-care/ages-stages/1-to-3-months/" target="_blank" class="read-more">Read More</a>
+                        </div>
+                    </div>
+
+                    <div class="article-card">
+                        <img src="4-6M.png" alt="4-6 Months Development">
+                        <div class="article-content">
+                            <h3>4-6 Months Development</h3>
+                            <p>Discover the exciting milestones your baby will reach between 4-6 months, including rolling over, sitting up, and babbling.</p>
+                            <a href="https://choc.org/primary-care/ages-stages/4-to-6-months/" target="_blank" class="read-more">Read More</a>
+                        </div>
+                    </div>
+
+                    <div class="article-card">
+                        <img src="7-9M.png" alt="7-9 Months Development">
+                        <div class="article-content">
+                            <h3>7-9 Months Development</h3>
+                            <p>Explore your baby's development during 7-9 months, including crawling, standing, and increased social interaction.</p>
+                            <a href="https://choc.org/primary-care/ages-stages/7-to-9-months/" target="_blank" class="read-more">Read More</a>
+                        </div>
+                    </div>
+
+                    <div class="article-card">
+                        <img src="10-12M.png" alt="10-12 Months Development">
+                        <div class="article-content">
+                            <h3>10-12 Months Development</h3>
+                            <p>Learn about your baby's development in the final months of their first year, including first steps, words, and increased independence.</p>
+                            <a href="https://choc.org/primary-care/ages-stages/10-to-12-months/" target="_blank" class="read-more">Read More</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Growth & Development Articles -->
+                <div class="development-articles">
+                    <h3>Helpful Resources</h3>
+                    <div class="articles-grid">
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-book-medical"></i>
+                            </div>
+                            <h4>Child Development Milestones</h4>
+                            <p class="article-description">
+                                Comprehensive guide to understanding your child's developmental milestones from birth through adolescence.
+                            </p>
+                            <a href="https://www.ncbi.nlm.nih.gov/books/NBK557518/" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-baby"></i>
+                            </div>
+                            <h4>Developmental Milestones Guide</h4>
+                            <p class="article-description">
+                                Expert insights and practical tips for tracking your child's development through different stages.
+                            </p>
+                            <a href="https://agesandstages.com/developmental-milestones-articles/" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4>CDC Milestone Tracker</h4>
+                            <p class="article-description">
+                                Official CDC guidelines and tools for monitoring your child's developmental progress.
+                            </p>
+                            <a href="https://www.cdc.gov/ncbddd/actearly/milestones/index.html" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h4>Baby Development & Safety</h4>
+                            <p class="article-description">
+                                Essential information about baby development milestones and safety measures.
+                            </p>
+                            <a href="https://my.clevelandclinic.org/health/articles/22063-baby-development-milestones-safety" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-baby-carriage"></i>
+                            </div>
+                            <h4>9-Month Milestones</h4>
+                            <p class="article-description">
+                                Detailed guide to understanding and supporting your 9-month-old's development.
+                            </p>
+                            <a href="https://www.cdc.gov/ncbddd/actearly/milestones/milestones-9mo.html" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
+
+                        <article class="article-card">
+                            <div class="article-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h4>Language Development</h4>
+                            <p class="article-description">
+                                Tips and activities to support your child's language development from an early age.
+                            </p>
+                            <a href="https://www.bbc.co.uk/tiny-happy-people/articles/zv44p9q" class="read-more-btn" target="_blank">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </article>
                     </div>
                 </div>
             </section>
@@ -386,6 +794,54 @@
                         <button class="play-btn">Play Now</button>
                     </div>
                 </div>
+
+                <!-- Interactive Learning Videos -->
+                <div class="learning-videos">
+                    <h3>Interactive Learning Videos</h3>
+                    <div class="videos-grid">
+                        <div class="video-card">
+                            <div class="video-thumbnail">
+                                <img src="https://img.youtube.com/vi/wEufPYl-bsk/maxresdefault.jpg" alt="Newborn Activities">
+                                <div class="play-overlay">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                            <h4>Newborn & 1 Month Activities</h4>
+                            <p>Learn engaging activities for your newborn and 1-month-old baby.</p>
+                            <a href="https://youtu.be/wEufPYl-bsk" class="watch-btn" target="_blank">
+                                Watch Video <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+
+                        <div class="video-card">
+                            <div class="video-thumbnail">
+                                <img src="https://img.youtube.com/vi/4ROA7UK6c7U/maxresdefault.jpg" alt="Baby Communication">
+                                <div class="play-overlay">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                            <h4>How to Talk to Your Baby</h4>
+                            <p>Expert tips on effective communication with your baby.</p>
+                            <a href="https://youtu.be/4ROA7UK6c7U" class="watch-btn" target="_blank">
+                                Watch Video <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+
+                        <div class="video-card">
+                            <div class="video-thumbnail">
+                                <img src="https://img.youtube.com/vi/GQKhX2wC914/maxresdefault.jpg" alt="Child Engagement">
+                                <div class="play-overlay">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                            <h4>Engaging with Your Child</h4>
+                            <p>Learn effective ways to interact and engage with your child.</p>
+                            <a href="https://youtu.be/GQKhX2wC914" class="watch-btn" target="_blank">
+                                Watch Video <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- Community Section -->
@@ -394,15 +850,180 @@
                     <div class="forum-header">
                         <h2>Parent Forum</h2>
                         <div class="forum-controls">
+                            <div class="search-container">
                             <input type="text" placeholder="Search discussions..." class="search-input">
+                                <button class="search-btn">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
                             <button class="new-post-btn">
                                 <i class="fas fa-plus"></i>
-                                New Post
+                                Create New Discussion
                             </button>
                         </div>
                     </div>
                     <div class="forum-posts">
-                        <!-- Forum posts will be dynamically added here -->
+                        <div class="forum-post">
+                            <div class="post-header">
+                                <h3>Tips for Managing Baby's Sleep Schedule</h3>
+                                <div class="post-meta">
+                                    <span class="post-author">
+                                        <i class="fas fa-user"></i>
+                                        Sarah Johnson
+                                    </span>
+                                    <span class="post-date">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <p>Hi everyone! I've been struggling with my 6-month-old's sleep schedule. Does anyone have tips for establishing a consistent bedtime routine? We've tried white noise and swaddling, but she still wakes up frequently...</p>
+                            </div>
+                            <div class="post-actions">
+                                <button class="like-btn">
+                                    <i class="fas fa-heart"></i>
+                                    <span>24</span>
+                                </button>
+                                <button class="comment-btn">
+                                    <i class="fas fa-comment"></i>
+                                    <span>8 Comments</span>
+                                </button>
+                                <button class="share-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </button>
+                            </div>
+                            <div class="comments-section">
+                                <div class="comments-list">
+                                    <div class="comment">
+                                        <div class="comment-header">
+                                            <span class="comment-author">Emily Chen</span>
+                                            <span class="comment-date">1 hour ago</span>
+                                        </div>
+                                        <div class="comment-content">
+                                            <p>Have you tried the 5 S's method? It worked wonders for my little one!</p>
+                                        </div>
+                                        <div class="comment-actions">
+                                            <button class="like-btn">
+                                                <i class="fas fa-heart"></i>
+                                                <span>5</span>
+                                            </button>
+                                            <button class="reply-btn">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comment-input-container">
+                                    <textarea class="comment-input" placeholder="Write a comment..."></textarea>
+                                    <button class="submit-btn">Post</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="forum-post">
+                            <div class="post-header">
+                                <h3>First-Time Mom Looking for Playgroup</h3>
+                                <div class="post-meta">
+                                    <span class="post-author">
+                                        <i class="fas fa-user"></i>
+                                        Maria Rodriguez
+                                    </span>
+                                    <span class="post-date">5 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <p>Hello! I'm a new mom with a 3-month-old baby. I'd love to connect with other parents in the area. Are there any playgroups or mom meetups happening? Looking for something during weekday mornings...</p>
+                            </div>
+                            <div class="post-actions">
+                                <button class="like-btn">
+                                    <i class="fas fa-heart"></i>
+                                    <span>15</span>
+                                </button>
+                                <button class="comment-btn">
+                                    <i class="fas fa-comment"></i>
+                                    <span>12 Comments</span>
+                                </button>
+                                <button class="share-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </button>
+                            </div>
+                            <div class="comments-section">
+                                <div class="comments-list">
+                                    <div class="comment">
+                                        <div class="comment-header">
+                                            <span class="comment-author">Lisa Thompson</span>
+                                            <span class="comment-date">4 hours ago</span>
+                                        </div>
+                                        <div class="comment-content">
+                                            <p>There's a great group that meets at the community center every Tuesday at 10 AM. Would you like me to add you to our WhatsApp group?</p>
+                                        </div>
+                                        <div class="comment-actions">
+                                            <button class="like-btn">
+                                                <i class="fas fa-heart"></i>
+                                                <span>3</span>
+                                            </button>
+                                            <button class="reply-btn">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comment-input-container">
+                                    <textarea class="comment-input" placeholder="Write a comment..."></textarea>
+                                    <button class="submit-btn">Post</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="forum-post">
+                            <div class="post-header">
+                                <h3>Baby Food Recipes - Stage 1</h3>
+                                <div class="post-meta">
+                                    <span class="post-author">
+                                        <i class="fas fa-user"></i>
+                                        David Kim
+                                    </span>
+                                    <span class="post-date">1 day ago</span>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <p>Sharing some of my favorite homemade baby food recipes that my little one loves! These are perfect for babies starting solids (6+ months). I'll post the recipes in the comments...</p>
+                            </div>
+                            <div class="post-actions">
+                                <button class="like-btn">
+                                    <i class="fas fa-heart"></i>
+                                    <span>42</span>
+                                </button>
+                                <button class="comment-btn">
+                                    <i class="fas fa-comment"></i>
+                                    <span>23 Comments</span>
+                                </button>
+                                <button class="share-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </button>
+                            </div>
+                            <div class="comments-section">
+                                <div class="comments-list">
+                                    <div class="comment">
+                                        <div class="comment-header">
+                                            <span class="comment-author">Sophie Anderson</span>
+                                            <span class="comment-date">23 hours ago</span>
+                                        </div>
+                                        <div class="comment-content">
+                                            <p>These look amazing! Could you share the recipe for the sweet potato puree? My baby loves sweet potatoes!</p>
+                                        </div>
+                                        <div class="comment-actions">
+                                            <button class="like-btn">
+                                                <i class="fas fa-heart"></i>
+                                                <span>7</span>
+                                            </button>
+                                            <button class="reply-btn">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comment-input-container">
+                                    <textarea class="comment-input" placeholder="Write a comment..."></textarea>
+                                    <button class="submit-btn">Post</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
