@@ -2,15 +2,15 @@
 const sections = document.querySelectorAll('.section');
 const navLinks = document.querySelectorAll('.nav-links a');
 const mobileNavLinks = document.querySelectorAll('.mobile-nav a');
-const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+const burgerMenu = document.querySelector('.burger-menu');
+const secondaryNav = document.querySelector('.secondary-nav');
+const navLinksContainer = document.querySelector('.nav-links');
 const healthInputForm = document.getElementById('health-input-form');
 const metricTypeSelect = document.getElementById('metric-type');
 const metricValueInput = document.getElementById('metric-value');
 const metricDateInput = document.getElementById('metric-date');
 const metricTimeInput = document.getElementById('metric-time');
 const metricNotesInput = document.getElementById('metric-notes');
-const unitDisplay = document.querySelector('.unit');
-const navLinksContainer = document.querySelector('.nav-links');
 
 // Health Data Management
 let healthData = {
@@ -98,6 +98,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Set default date and time
     setDefaultDateTime();
+
+    // Initialize vital signs modals
+    setupVitalSignsModals();
+
+    // Game Modal Functionality
+    setupGameModals();
+
+    // Community Section Interactions
+    setupCommunityInteractions();
+
+    // Like button functionality
+    setupLikeButtons();
 });
 
 // Navigation setup
@@ -110,6 +122,12 @@ function setupNavigation() {
         const targetId = this.getAttribute('href').substring(1);
         console.log('Navigating to:', targetId);
         showSection(targetId);
+        
+        // Close mobile menu if open
+        if (burgerMenu) {
+            burgerMenu.classList.remove('active');
+            secondaryNav.classList.remove('active');
+        }
     }
     
     // Add click listeners to all navigation links
@@ -117,25 +135,20 @@ function setupNavigation() {
         link.addEventListener('click', handleNavigation);
     });
     
-    mobileNavLinks.forEach(link => {
-        link.addEventListener('click', handleNavigation);
-    });
-    
-    // Mobile menu toggle
-    if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            console.log('Toggling mobile menu');
-            mobileMenuBtn.classList.toggle('active');
-            navLinksContainer.classList.toggle('active');
+    // Burger menu toggle
+    if (burgerMenu) {
+        burgerMenu.addEventListener('click', () => {
+            console.log('Toggling burger menu');
+            burgerMenu.classList.toggle('active');
+            secondaryNav.classList.toggle('active');
         });
     }
     
     // Close menu when clicking outside
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.nav-links') && !e.target.closest('.mobile-menu-btn')) {
-            if (mobileMenuBtn) mobileMenuBtn.classList.remove('active');
-            if (navLinksContainer) navLinksContainer.classList.remove('active');
+        if (!e.target.closest('.secondary-nav') && !e.target.closest('.burger-menu')) {
+            if (burgerMenu) burgerMenu.classList.remove('active');
+            if (secondaryNav) secondaryNav.classList.remove('active');
         }
     });
     
@@ -185,8 +198,8 @@ function showSection(sectionId) {
     });
     
     // Close mobile menu
-    if (mobileMenuBtn) mobileMenuBtn.classList.remove('active');
-    if (navLinksContainer) navLinksContainer.classList.remove('active');
+    if (burgerMenu) burgerMenu.classList.remove('active');
+    if (secondaryNav) secondaryNav.classList.remove('active');
     
     // Update URL hash
     window.location.hash = sectionId;
@@ -194,11 +207,15 @@ function showSection(sectionId) {
 
 // Form event listeners setup
 function setupFormListeners() {
+    if (!healthInputForm) return;
+    
     // Form submission
     healthInputForm.addEventListener('submit', handleHealthSubmit);
     
     // Metric type change
-    metricTypeSelect.addEventListener('change', updateUnitDisplay);
+    if (metricTypeSelect) {
+        metricTypeSelect.addEventListener('change', updateUnitDisplay);
+    }
     
     // Time filter changes
     document.querySelectorAll('.time-filter').forEach(filter => {
@@ -359,64 +376,51 @@ function setDefaultDateTime() {
 function handleHealthSubmit(e) {
     e.preventDefault();
     console.log('Handling health form submission...');
-    
-    const record = {
-        type: metricTypeSelect.value,
-        value: parseFloat(metricValueInput.value),
-        date: metricDateInput.value,
-        time: metricTimeInput.value,
-        notes: metricNotesInput.value,
-        timestamp: new Date(`${metricDateInput.value}T${metricTimeInput.value}`).getTime()
-    };
-    
-    if (healthInputForm.dataset.editTimestamp) {
-        // Update existing record
-        const timestamp = parseInt(healthInputForm.dataset.editTimestamp);
-        const recordIndex = healthData[record.type].findIndex(r => r.timestamp === timestamp);
-        
-        if (recordIndex !== -1) {
-            healthData[record.type][recordIndex] = record;
-            healthData[record.type].sort((a, b) => b.timestamp - a.timestamp);
-            localStorage.setItem('healthData', JSON.stringify(healthData));
-            
-            updateChart(record.type);
-            updateRecords(record.type);
-            updateHealthSummary();
-            updateMetricValue(record.type);
-            
-            showNotification('Record updated successfully!', 'success');
-        }
-        
-        // Reset form state
-        delete healthInputForm.dataset.editTimestamp;
-        healthInputForm.querySelector('.submit-btn').textContent = 'Add Record';
-    } else {
-        // Add new record
-        addHealthRecord(record);
-        showNotification('Record added successfully!', 'success');
+
+    const metricType = metricTypeSelect.value;
+    const value = parseFloat(metricValueInput.value);
+    const date = metricDateInput.value;
+    const time = metricTimeInput.value;
+    const notes = metricNotesInput.value;
+
+    if (!metricType || isNaN(value) || !date || !time) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
     }
-    
+
+    const timestamp = new Date(`${date}T${time}`).getTime();
+    const record = {
+        value,
+        timestamp,
+        notes
+    };
+
+    addHealthRecord(record);
     healthInputForm.reset();
     setDefaultDateTime();
+    showNotification('Record added successfully', 'success');
 }
 
 // Add health record
 function addHealthRecord(record) {
-    console.log('Adding health record:', record);
+    const metricType = metricTypeSelect.value;
+    console.log('Adding health record:', record, 'for metric:', metricType);
+
+    // Add record to healthData
+    healthData[metricType].push(record);
     
-    if (!healthData[record.type]) {
-        healthData[record.type] = [];
-    }
+    // Sort records by timestamp
+    healthData[metricType].sort((a, b) => b.timestamp - a.timestamp);
     
-    healthData[record.type].push(record);
-    healthData[record.type].sort((a, b) => b.timestamp - a.timestamp);
-    
+    // Save to localStorage
     localStorage.setItem('healthData', JSON.stringify(healthData));
     
-    updateChart(record.type);
-    updateRecords(record.type);
+    // Update displays
+    updateChart(metricType);
+    updateMetricValue(metricType);
+    updateRecords(metricType);
     updateHealthSummary();
-    updateMetricValue(record.type);
+    updateBMI();
 }
 
 // Update unit display
@@ -761,7 +765,7 @@ newPostBtn.addEventListener('click', () => {
                 <h4>Comments (${post.comments.length})</h4>
                 <div class="comments-list">
                     ${post.comments.map(comment => `
-                        <div class="comment">
+                        <div class="comment" data-comment-id="${comment.id}">
                             <div class="comment-header">
                                 <span class="comment-author">${comment.author}</span>
                                 <span class="comment-date">${formatDate(comment.timestamp)}</span>
@@ -775,13 +779,31 @@ newPostBtn.addEventListener('click', () => {
                                     <i class="fas fa-reply"></i> Reply
                                 </button>
                             </div>
+                            ${comment.replies ? `
+                                <div class="replies-list">
+                                    ${comment.replies.map(reply => `
+                                        <div class="reply" data-reply-id="${reply.id}">
+                                            <div class="reply-header">
+                                                <span class="reply-author">${reply.author}</span>
+                                                <span class="reply-date">${formatDate(reply.timestamp)}</span>
+                                            </div>
+                                            <p class="reply-content">${reply.content}</p>
+                                            <div class="reply-actions">
+                                                <button class="like-btn" data-reply-id="${reply.id}">
+                                                    <i class="fas fa-heart"></i> ${reply.likes}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
                         </div>
                     `).join('')}
                 </div>
-                <div class="comment-input-container">
-                    <textarea class="comment-input" placeholder="Add a comment..."></textarea>
-                    <button class="submit-btn" data-post-id="${post.id}">Post</button>
-                </div>
+                <form class="comment-input-container">
+                    <textarea class="comment-input" placeholder="Add a comment..." required></textarea>
+                    <button type="submit" class="submit-btn">Post</button>
+                </form>
             </div>
         `;
         
@@ -1460,42 +1482,35 @@ function initializeGrowth() {
 
 function handleMilestoneSubmit(event) {
     event.preventDefault();
-    console.log('Handling milestone submission...');
     
-    // Get form values
     const type = document.getElementById('milestone-type').value;
     const title = document.getElementById('milestone-title').value;
     const date = document.getElementById('milestone-date').value;
     const description = document.getElementById('milestone-description').value;
-    const photoInput = document.getElementById('milestone-photo');
+    const photoFile = document.getElementById('milestone-photo').files[0];
     
-    // Create milestone object
     const milestone = {
         id: Date.now(),
         type: type,
         title: title,
         date: date,
         description: description,
-        photo: photoInput.files[0] ? URL.createObjectURL(photoInput.files[0]) : null,
+        photo: photoFile ? URL.createObjectURL(photoFile) : null,
         timestamp: new Date(date).getTime()
     };
     
-    console.log('New milestone:', milestone);
-    
-    // Save to localStorage
-    const milestones = JSON.parse(localStorage.getItem('milestones') || '[]');
+    // Add milestone to storage
+    let milestones = JSON.parse(localStorage.getItem('milestones') || '[]');
     milestones.push(milestone);
-    milestones.sort((a, b) => b.timestamp - a.timestamp);
     localStorage.setItem('milestones', JSON.stringify(milestones));
     
-    // Update UI
-    updateTimeline();
+    // Update all components
+    updateTimeline(milestones);
     updateDevelopmentSummary();
     
     // Reset form
     event.target.reset();
     
-    // Show success message
     showNotification('Milestone added successfully!', 'success');
 }
 
@@ -1812,7 +1827,7 @@ function renderPosts() {
                 <h4>Comments (${post.comments.length})</h4>
                 <div class="comments-list">
                     ${post.comments.map(comment => `
-                        <div class="comment">
+                        <div class="comment" data-comment-id="${comment.id}">
                             <div class="comment-header">
                                 <span class="comment-author">${comment.author}</span>
                                 <span class="comment-date">${formatDate(comment.timestamp)}</span>
@@ -1826,21 +1841,180 @@ function renderPosts() {
                                     <i class="fas fa-reply"></i> Reply
                                 </button>
                             </div>
+                            ${comment.replies ? `
+                                <div class="replies-list">
+                                    ${comment.replies.map(reply => `
+                                        <div class="reply" data-reply-id="${reply.id}">
+                                            <div class="reply-header">
+                                                <span class="reply-author">${reply.author}</span>
+                                                <span class="reply-date">${formatDate(reply.timestamp)}</span>
+                                            </div>
+                                            <p class="reply-content">${reply.content}</p>
+                                            <div class="reply-actions">
+                                                <button class="like-btn" data-reply-id="${reply.id}">
+                                                    <i class="fas fa-heart"></i> ${reply.likes}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
                         </div>
                     `).join('')}
                 </div>
-                <div class="comment-input-container" style="display: none;">
-                    <textarea class="comment-input" placeholder="Add a comment..."></textarea>
-                    <button class="submit-btn" data-post-id="${post.id}" style="display: none;">Post</button>
-                </div>
+                <form class="comment-input-container">
+                    <textarea class="comment-input" placeholder="Add a comment..." required></textarea>
+                    <button type="submit" class="submit-btn">Post</button>
+                </form>
             </div>
         `;
         
         postsContainer.appendChild(postElement);
     });
 
-    // Add event listeners for likes and comments
-    addForumEventListeners();
+    // Add event listeners
+    setupForumEventListeners();
+}
+
+function setupForumEventListeners() {
+    // Like buttons
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', handleLike);
+    });
+    
+    // Comment forms
+    document.querySelectorAll('.comment-input-container').forEach(form => {
+        form.addEventListener('submit', handleCommentSubmit);
+        
+        // Show/hide submit button based on input
+        const textarea = form.querySelector('.comment-input');
+        const submitBtn = form.querySelector('.submit-btn');
+        
+        textarea.addEventListener('input', () => {
+            submitBtn.style.display = textarea.value.trim() ? 'block' : 'none';
+        });
+    });
+    
+    // Reply buttons
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.addEventListener('click', handleReply);
+    });
+}
+
+function handleCommentSubmit(e) {
+    e.preventDefault();
+    console.log('Handling comment submit...');
+    
+    const form = e.target;
+    const postId = parseInt(form.closest('.forum-post').dataset.postId);
+    const commentInput = form.querySelector('.comment-input');
+    const commentText = commentInput.value.trim();
+    
+    if (commentText) {
+        console.log('Submitting comment:', commentText);
+        
+        const newComment = {
+            id: Date.now(),
+            author: 'Current User',
+            content: commentText,
+            timestamp: new Date().toISOString(),
+            likes: 0,
+            replies: []
+        };
+
+        const post = forumData.posts.find(p => p.id === postId);
+        if (post) {
+            post.comments.push(newComment);
+            saveForumData();
+            renderPosts();
+            showNotification('Comment posted successfully!', 'success');
+            
+            // Clear the input
+            commentInput.value = '';
+            
+            // Hide the submit button
+            const submitBtn = form.querySelector('.submit-btn');
+            if (submitBtn) {
+                submitBtn.style.display = 'none';
+            }
+        }
+    }
+}
+
+function handleReply(e) {
+    e.stopPropagation();
+    console.log('Handling reply...');
+    
+    const replyBtn = e.currentTarget;
+    const commentContainer = replyBtn.closest('.comment');
+    const commentId = parseInt(commentContainer.dataset.commentId);
+    
+    // Remove any existing reply forms
+    document.querySelectorAll('.reply-form').forEach(form => form.remove());
+    
+    // Create reply form
+    const replyForm = document.createElement('form');
+    replyForm.className = 'reply-form';
+    replyForm.innerHTML = `
+        <textarea class="comment-input" placeholder="Write your reply..." required></textarea>
+        <button type="submit" class="submit-btn">Post Reply</button>
+    `;
+    
+    commentContainer.appendChild(replyForm);
+    
+    // Handle form submission
+    replyForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const replyText = replyForm.querySelector('.comment-input').value.trim();
+        
+        if (replyText) {
+            const postId = parseInt(commentContainer.closest('.forum-post').dataset.postId);
+            const post = forumData.posts.find(p => p.id === postId);
+            
+            if (post) {
+                const parentComment = post.comments.find(c => c.id === commentId);
+                if (parentComment) {
+                    const newReply = {
+                        id: Date.now(),
+                        author: 'Current User',
+                        content: replyText,
+                        timestamp: new Date().toISOString(),
+                        likes: 0
+                    };
+                    
+                    parentComment.replies = parentComment.replies || [];
+                    parentComment.replies.push(newReply);
+                    
+                    saveForumData();
+                    renderPosts();
+                    showNotification('Reply posted successfully!', 'success');
+                }
+            }
+        }
+    });
+    
+    // Show/hide submit button based on input
+    const textarea = replyForm.querySelector('.comment-input');
+    const submitBtn = replyForm.querySelector('.submit-btn');
+    
+    textarea.addEventListener('input', () => {
+        submitBtn.style.display = textarea.value.trim() ? 'block' : 'none';
+    });
+    
+    // Focus the textarea
+    textarea.focus();
+    
+    // Close reply form when clicking outside
+    document.addEventListener('click', function handleClickOutside(event) {
+        if (!replyForm.contains(event.target) && event.target !== replyBtn) {
+            replyForm.remove();
+            document.removeEventListener('click', handleClickOutside);
+        }
+    });
+}
+
+function saveForumData() {
+    localStorage.setItem('forumData', JSON.stringify(forumData));
 }
 
 function showNewPostModal() {
@@ -1889,95 +2063,6 @@ function showNewPostModal() {
     modal.querySelector('.cancel-btn').addEventListener('click', () => {
         modal.remove();
     });
-}
-
-function addForumEventListeners() {
-    console.log('Adding forum event listeners...');
-    
-    // Like buttons
-    document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.addEventListener('click', handleLike);
-    });
-    
-    // Comment submission
-    document.querySelectorAll('.comment-input').forEach(input => {
-        input.addEventListener('input', handleCommentInput);
-    });
-    
-    // Reply buttons
-    document.querySelectorAll('.reply-btn').forEach(btn => {
-        btn.addEventListener('click', handleReply);
-    });
-}
-
-function handleCommentInput(e) {
-    const input = e.target;
-    const submitBtn = input.closest('.comment-input-container').querySelector('.submit-btn');
-    submitBtn.style.display = input.value.trim() ? 'block' : 'none';
-}
-
-function handleReply(e) {
-    const btn = e.target.closest('.reply-btn');
-    const commentId = parseInt(btn.dataset.commentId);
-    const post = forumData.posts.find(p => p.comments.some(c => c.id === commentId));
-    
-    if (post) {
-        const inputContainer = btn.closest('.comments-section').querySelector('.comment-input-container');
-        const input = inputContainer.querySelector('.comment-input');
-        const submitBtn = inputContainer.querySelector('.submit-btn');
-        
-        // Show input container
-        inputContainer.style.display = 'flex';
-        
-        // Focus input and set placeholder
-        input.focus();
-        input.placeholder = `Replying to ${post.comments.find(c => c.id === commentId).author}...`;
-        input.dataset.replyTo = commentId;
-        
-        // Hide submit button initially
-        submitBtn.style.display = 'none';
-
-        // Add click outside listener
-        const handleClickOutside = (event) => {
-            if (!inputContainer.contains(event.target) && event.target !== btn) {
-                inputContainer.style.display = 'none';
-                input.value = '';
-                document.removeEventListener('click', handleClickOutside);
-            }
-        };
-
-        // Add a small delay to prevent immediate trigger
-        setTimeout(() => {
-            document.addEventListener('click', handleClickOutside);
-        }, 100);
-    }
-}
-
-function handleCommentSubmit(e) {
-    const btn = e.target;
-    const postId = parseInt(btn.dataset.postId);
-    const post = forumData.posts.find(p => p.id === postId);
-    const input = btn.previousElementSibling;
-    const content = input.value.trim();
-    
-    if (content && post) {
-        const newComment = {
-            id: Date.now(),
-            author: "You",
-            content,
-            timestamp: Date.now(),
-            likes: 0
-        };
-        
-        post.comments.push(newComment);
-        renderPosts();
-        
-        // Hide input container after successful comment
-        const inputContainer = input.closest('.comment-input-container');
-        inputContainer.style.display = 'none';
-        
-        showNotification('Comment added successfully!', 'success');
-    }
 }
 
 function handleLike(e) {
@@ -2071,7 +2156,7 @@ function filterPosts(searchTerm) {
                 <h4>Comments (${post.comments.length})</h4>
                 <div class="comments-list">
                     ${post.comments.map(comment => `
-                        <div class="comment">
+                        <div class="comment" data-comment-id="${comment.id}">
                             <div class="comment-header">
                                 <span class="comment-author">${comment.author}</span>
                                 <span class="comment-date">${formatDate(comment.timestamp)}</span>
@@ -2085,21 +2170,39 @@ function filterPosts(searchTerm) {
                                     <i class="fas fa-reply"></i> Reply
                                 </button>
                             </div>
+                            ${comment.replies ? `
+                                <div class="replies-list">
+                                    ${comment.replies.map(reply => `
+                                        <div class="reply" data-reply-id="${reply.id}">
+                                            <div class="reply-header">
+                                                <span class="reply-author">${reply.author}</span>
+                                                <span class="reply-date">${formatDate(reply.timestamp)}</span>
+                                            </div>
+                                            <p class="reply-content">${reply.content}</p>
+                                            <div class="reply-actions">
+                                                <button class="like-btn" data-reply-id="${reply.id}">
+                                                    <i class="fas fa-heart"></i> ${reply.likes}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
                         </div>
                     `).join('')}
                 </div>
-                <div class="comment-input-container" style="display: none;">
-                    <textarea class="comment-input" placeholder="Add a comment..."></textarea>
-                    <button class="submit-btn" data-post-id="${post.id}" style="display: none;">Post</button>
-                </div>
+                <form class="comment-input-container">
+                    <textarea class="comment-input" placeholder="Add a comment..." required></textarea>
+                    <button type="submit" class="submit-btn">Post</button>
+                </form>
             </div>
         `;
         
         postsContainer.appendChild(postElement);
     });
 
-    // Add event listeners for the filtered posts
-    addForumEventListeners();
+    // Add event listeners
+    setupForumEventListeners();
 }
 
 function formatDate(timestamp) {
@@ -2160,154 +2263,108 @@ function applySettings() {
 // Setup settings event listeners
 function setupSettingsListeners() {
     // Dark mode toggle
-    const darkModeToggle = document.querySelector('#darkModeToggle');
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('change', (e) => {
-            appSettings.darkMode = e.target.checked;
-            saveSettings();
-            applySettings();
-            showNotification('Dark mode ' + (appSettings.darkMode ? 'enabled' : 'disabled'));
-        });
-    }
-
-    // Font size select
-    const fontSizeSelect = document.querySelector('#font-size-select');
-    if (fontSizeSelect) {
-        fontSizeSelect.addEventListener('change', (e) => {
-            appSettings.fontSize = e.target.value;
-            saveSettings();
-            applySettings();
-            showNotification('Font size updated');
-        });
-    }
-
-    // Health reminders toggle
-    const healthRemindersToggle = document.querySelector('#healthRemindersToggle');
-    if (healthRemindersToggle) {
-        healthRemindersToggle.addEventListener('change', (e) => {
-            appSettings.healthReminders = e.target.checked;
-            saveSettings();
-            showNotification('Health reminders ' + (appSettings.healthReminders ? 'enabled' : 'disabled'));
-        });
-    }
-
-    // Milestone alerts toggle
-    const milestoneAlertsToggle = document.querySelector('#milestoneAlertsToggle');
-    if (milestoneAlertsToggle) {
-        milestoneAlertsToggle.addEventListener('change', (e) => {
-            appSettings.milestoneAlerts = e.target.checked;
-            saveSettings();
-            showNotification('Milestone alerts ' + (appSettings.milestoneAlerts ? 'enabled' : 'disabled'));
-        });
-    }
-
-    // Export data button
-    const exportDataBtn = document.querySelector('.export-data-btn');
-    if (exportDataBtn) {
-        exportDataBtn.addEventListener('click', exportAllData);
-    }
-
-    // Import data button
-    const importDataBtn = document.querySelector('.import-data-btn');
-    const importDataInput = document.querySelector('#import-data-input');
-    
-    if (importDataBtn && importDataInput) {
-        importDataBtn.addEventListener('click', () => {
-            importDataInput.click();
-        });
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    darkModeToggle.addEventListener('change', () => {
+        appSettings.darkMode = darkModeToggle.checked;
+        localStorage.setItem('appSettings', JSON.stringify(appSettings));
         
-        importDataInput.addEventListener('change', handleDataImport);
-    }
+        // Apply dark mode
+        if (appSettings.darkMode) {
+            document.body.classList.add('dark-mode');
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    });
 
-    // Clear data button
-    const clearDataBtn = document.querySelector('.clear-data-btn');
-    if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', clearAllData);
-    }
+    // Font size selector
+    const fontSizeSelect = document.getElementById('font-size-select');
+    fontSizeSelect.addEventListener('change', () => {
+        // Remove only font size classes while preserving dark mode
+        document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+        document.body.classList.add(`font-size-${fontSizeSelect.value}`);
+        appSettings.fontSize = fontSizeSelect.value;
+        localStorage.setItem('appSettings', JSON.stringify(appSettings));
+    });
 
-    // Privacy policy button
-    const privacyPolicyBtn = document.querySelector('.privacy-policy-btn');
-    if (privacyPolicyBtn) {
-        privacyPolicyBtn.addEventListener('click', showPrivacyPolicy);
-    }
+    // Import data
+    const importInput = document.getElementById('import-data-input');
+    const importBtn = document.querySelector('.import-data-btn');
+    importBtn.addEventListener('click', () => {
+        importInput.click();
+    });
+    importInput.addEventListener('change', handleDataImport);
+
+    // Export data
+    const exportBtn = document.querySelector('.export-data-btn');
+    exportBtn.addEventListener('click', exportAllData);
+
+    // Clear data
+    const clearBtn = document.querySelector('.clear-data-btn');
+    clearBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+            clearAllData();
+        }
+    });
+
+    // Privacy policy
+    const privacyBtn = document.querySelector('.privacy-policy-btn');
+    privacyBtn.addEventListener('click', showPrivacyPolicy);
+
+    // Load saved settings
+    loadSettings();
 }
 
-// Save settings to localStorage
-function saveSettings() {
-    localStorage.setItem('appSettings', JSON.stringify(appSettings));
+function loadSettings() {
+    // Load settings from localStorage
+    const savedSettings = localStorage.getItem('appSettings');
+    if (savedSettings) {
+        Object.assign(appSettings, JSON.parse(savedSettings));
+    }
+
+    // Apply dark mode
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    if (darkModeToggle) {
+        darkModeToggle.checked = appSettings.darkMode;
+        if (appSettings.darkMode) {
+            document.body.classList.add('dark-mode');
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    }
+
+    // Load font size
+    const fontSize = localStorage.getItem('fontSize') || 'medium';
+    document.getElementById('font-size-select').value = fontSize;
+    document.body.classList.add(`font-size-${fontSize}`);
 }
 
-// Export all data
 function exportAllData() {
     const data = {
-        healthData: healthData,
+        healthRecords: JSON.parse(localStorage.getItem('healthRecords') || '[]'),
         milestones: JSON.parse(localStorage.getItem('milestones') || '[]'),
-        settings: appSettings,
-        highScores: highScores
+        settings: {
+            darkMode: localStorage.getItem('darkMode') === 'true',
+            fontSize: localStorage.getItem('fontSize') || 'medium'
+        }
     };
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'giggles-to-growth-data.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-    
-    showNotification('Data exported successfully', 'success');
+    URL.revokeObjectURL(url);
 }
 
-// Clear all data
 function clearAllData() {
-    if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
-        // Clear health data
-        healthData = {
-            Weight: [],
-            Height: [],
-            Temperature: []
-        };
-        localStorage.removeItem('healthData');
-        
-        // Clear milestones
-        localStorage.removeItem('milestones');
-        
-        // Clear high scores
-        highScores = {
-            counting: [],
-            color: [],
-            memory: [],
-            shapes: []
-        };
-        Object.keys(highScores).forEach(game => {
-            localStorage.removeItem(`${game}HighScores`);
-        });
-        
-        // Reset settings to default
-        appSettings = {
-            darkMode: false,
-            fontSize: 'medium',
-            healthReminders: true,
-            milestoneAlerts: true
-        };
-        localStorage.removeItem('appSettings');
-        
-        // Apply default settings
-        applySettings();
-        
-        // Update UI
-        updateAllCharts();
-        updateAllRecords();
-        updateHealthSummary();
-        updateTimeline();
-        updateDevelopmentSummary();
-        
-        showNotification('All data cleared successfully', 'success');
-    }
+    localStorage.clear();
+    location.reload();
 }
 
-// Show privacy policy
 function showPrivacyPolicy() {
     const modal = document.createElement('div');
     modal.className = 'modal privacy-modal';
@@ -2315,15 +2372,84 @@ function showPrivacyPolicy() {
         <div class="modal-content">
             <h3>Privacy Policy</h3>
             <div class="privacy-content">
-                <p>Your privacy is important to us. This app stores all data locally on your device. We do not collect or share any personal information.</p>
-                <h4>Data Storage</h4>
-                <p>All data is stored in your browser's local storage and is not transmitted to any servers. This means your information stays on your device and is not accessible to anyone else.</p>
-                <h4>Data Usage</h4>
-                <p>The data you enter is used solely for the purpose of tracking your child's development and providing you with insights. We do not use this data for any other purposes.</p>
-                <h4>Data Export</h4>
-                <p>You can export all your data at any time using the export feature in settings. This allows you to keep a backup of your information or transfer it to another device.</p>
-                <h4>Data Security</h4>
-                <p>Since all data is stored locally on your device, it is protected by your device's security measures. We recommend keeping your device secure and regularly backing up your data.</p>
+                <section>
+                    <h4>Our Commitment to Privacy</h4>
+                    <p>At Giggles to Growth, we understand the importance of protecting your child's privacy. This policy explains how we handle your data and your rights regarding its use.</p>
+                </section>
+
+                <section>
+                    <h4>Data Collection and Storage</h4>
+                    <p>We collect and store the following information locally on your device:</p>
+                    <ul>
+                        <li><strong>Health Records:</strong> Weight, height, temperature measurements, and related notes</li>
+                        <li><strong>Development Data:</strong> Milestones, achievements, photos, and progress tracking</li>
+                        <li><strong>Learning Progress:</strong> Game scores, achievements, and educational milestones</li>
+                        <li><strong>Community Content:</strong> Posts, comments, and interactions within the app</li>
+                    </ul>
+                    <p class="note">All data is stored exclusively on your device and is never transmitted to external servers.</p>
+                </section>
+
+                <section>
+                    <h4>Data Security Measures</h4>
+                    <p>We implement several security measures to protect your data:</p>
+                    <ul>
+                        <li><strong>Local Storage:</strong> All data is encrypted and stored locally on your device</li>
+                        <li><strong>No Cloud Sync:</strong> We don't use cloud storage or synchronization</li>
+                        <li><strong>Data Encryption:</strong> Sensitive information is encrypted using industry-standard methods</li>
+                        <li><strong>Regular Backups:</strong> We encourage you to regularly export your data for backup</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4>Your Rights and Control</h4>
+                    <p>You have complete control over your data:</p>
+                    <ul>
+                        <li><strong>Access:</strong> View all stored data at any time through the app</li>
+                        <li><strong>Export:</strong> Download all your data in a readable format</li>
+                        <li><strong>Delete:</strong> Remove specific records or clear all data</li>
+                        <li><strong>Modify:</strong> Edit or update any stored information</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4>Data Usage</h4>
+                    <p>Your data is used exclusively to:</p>
+                    <ul>
+                        <li><strong>Track Progress:</strong> Monitor your child's development and growth</li>
+                        <li><strong>Provide Insights:</strong> Generate personalized reports and recommendations</li>
+                        <li><strong>Enable Features:</strong> Support app functionality and community features</li>
+                        <li><strong>Improve Experience:</strong> Enhance the app's usability and features</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4>Third-Party Access</h4>
+                    <p>We maintain strict privacy standards:</p>
+                    <ul>
+                        <li><strong>No Data Sharing:</strong> We don't share your data with any third parties</li>
+                        <li><strong>No Analytics:</strong> We don't use third-party analytics or tracking</li>
+                        <li><strong>No Advertising:</strong> We don't use your data for advertising purposes</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4>Data Retention</h4>
+                    <p>Your data remains on your device until you choose to:</p>
+                    <ul>
+                        <li>Delete specific records</li>
+                        <li>Clear all data through the settings</li>
+                        <li>Uninstall the application</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4>Contact Us</h4>
+                    <p>If you have any questions about our privacy policy or data handling practices, please contact us through the app's support section.</p>
+                </section>
+
+                <section class="last-updated">
+                    <p>Last Updated: ${new Date().toLocaleDateString()}</p>
+                </section>
             </div>
             <button class="close-modal">Close</button>
         </div>
@@ -2331,10 +2457,96 @@ function showPrivacyPolicy() {
     
     document.body.appendChild(modal);
     
-    modal.querySelector('.close-modal').addEventListener('click', () => {
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.addEventListener('click', () => {
         modal.remove();
     });
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
 }
+
+// Add this to your existing CSS
+const privacyStyle = document.createElement('style');
+privacyStyle.textContent = `
+    .privacy-modal .modal-content {
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 2rem;
+        line-height: 1.6;
+    }
+
+    .privacy-content section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .privacy-content section:last-child {
+        border-bottom: none;
+    }
+
+    .privacy-content h4 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .privacy-content p {
+        margin-bottom: 1rem;
+    }
+
+    .privacy-content ul {
+        list-style-type: none;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .privacy-content li {
+        margin: 0.75rem 0;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .privacy-content li:before {
+        content: "•";
+        color: var(--primary-color);
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+    }
+
+    .privacy-content .note {
+        background: var(--card-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-color);
+        margin-top: 1rem;
+    }
+
+    .privacy-content strong {
+        color: var(--primary-color);
+    }
+
+    .privacy-content .last-updated {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-align: right;
+        margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .privacy-modal .modal-content {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+    }
+`;
+document.head.appendChild(privacyStyle);
 
 function updateHighScores(gameType, score) {
     highScores[gameType].push({
@@ -2596,3 +2808,402 @@ backBtn.addEventListener('click', (e) => {
     e.preventDefault();
     hideSettings();
 });
+
+// Vital Signs Modal Functionality
+function setupVitalSignsModals() {
+    const vitalSignButtons = document.querySelectorAll('.vital-sign-btn');
+    const modals = document.querySelectorAll('.vital-signs-modal');
+    const closeButtons = document.querySelectorAll('.close-modal');
+
+    // Open modal when clicking a vital sign button
+    vitalSignButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modalType = button.getAttribute('data-type');
+            const modal = document.getElementById(`${modalType}-modal`);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+        });
+    });
+
+    // Close modal when clicking close button
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.vital-signs-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = ''; // Restore background scrolling
+            }
+        });
+    });
+
+    // Close modal when clicking outside
+    modals.forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = ''; // Restore background scrolling
+            }
+        });
+    });
+
+    // Close modal when pressing Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            modals.forEach(modal => {
+                if (modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore background scrolling
+                }
+            });
+        }
+    });
+}
+
+// Initialize vital signs modals
+document.addEventListener('DOMContentLoaded', () => {
+    setupVitalSignsModals();
+});
+
+// Forum search functionality
+const searchInput = document.querySelector('.search-input');
+const searchBtn = document.querySelector('.search-btn');
+
+searchBtn.addEventListener('click', () => {
+    const searchTerm = searchInput.value.toLowerCase();
+    document.querySelectorAll('.forum-post').forEach(post => {
+        const title = post.querySelector('.post-title').textContent.toLowerCase();
+        const content = post.querySelector('.post-content').textContent.toLowerCase();
+        if (title.includes(searchTerm) || content.includes(searchTerm)) {
+            post.style.display = 'block';
+        } else {
+            post.style.display = 'none';
+        }
+    });
+});
+
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        searchBtn.click();
+    }
+});
+
+// Comment button visibility
+const commentInputs = document.querySelectorAll('.comment-input');
+const submitButtons = document.querySelectorAll('.submit-btn');
+
+commentInputs.forEach((input, index) => {
+    input.addEventListener('input', () => {
+        submitButtons[index].style.display = input.value.trim() ? 'block' : 'none';
+    });
+});
+
+// Filter functionality for health records
+const filterSelects = document.querySelectorAll('.filter-select');
+const recordLists = document.querySelectorAll('.record-list');
+
+filterSelects.forEach((select, index) => {
+    select.addEventListener('change', () => {
+        const selectedValue = select.value;
+        const records = recordLists[index].querySelectorAll('.record-item');
+        
+        records.forEach(record => {
+            if (selectedValue === 'all') {
+                record.style.display = 'flex';
+            } else {
+                const recordType = record.getAttribute('data-type');
+                record.style.display = recordType === selectedValue ? 'flex' : 'none';
+            }
+        });
+    });
+});
+
+// Game Modal Functionality
+function setupGameModals() {
+    const playButtons = document.querySelectorAll('.play-btn');
+    const gameModals = document.querySelectorAll('.game-modal');
+    const closeButtons = document.querySelectorAll('.close-modal');
+
+    playButtons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+            const gameType = button.closest('.game-card').dataset.game;
+            const modal = document.querySelector(`.game-modal[data-game="${gameType}"]`);
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                
+                // Initialize the game
+                switch(gameType) {
+                    case 'color':
+                        startColorGame();
+                        break;
+                    case 'memory':
+                        startMemoryGame();
+                        break;
+                    case 'counting':
+                        startCountingGame();
+                        break;
+                    case 'shapes':
+                        startShapeGame();
+                        break;
+                }
+            }
+        });
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.game-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    });
+
+    gameModals.forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    });
+}
+
+// Community Section Interactions
+function setupCommunityInteractions() {
+    // Like functionality
+    const likeButtons = document.querySelectorAll('.like-btn');
+    likeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const icon = button.querySelector('i');
+            const countSpan = button.querySelector('span');
+            const currentCount = parseInt(countSpan.textContent);
+            
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                countSpan.textContent = currentCount + 1;
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                countSpan.textContent = currentCount - 1;
+            }
+        });
+    });
+
+    // Reply functionality
+    const replyButtons = document.querySelectorAll('.reply-btn');
+    replyButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event from bubbling up
+            const commentSection = button.closest('.forum-post').querySelector('.comments-section');
+            const commentInput = commentSection.querySelector('.comment-input-container');
+            
+            // Hide all other comment inputs first
+            document.querySelectorAll('.comment-input-container').forEach(input => {
+                if (input !== commentInput) {
+                    input.style.display = 'none';
+                }
+            });
+            
+            // Toggle the clicked comment input
+            commentInput.style.display = commentInput.style.display === 'none' ? 'block' : 'none';
+            
+            // Focus the input if showing
+            if (commentInput.style.display === 'block') {
+                commentInput.querySelector('textarea').focus();
+            }
+        });
+    });
+
+    // Click outside to close comment input
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.comment-input-container') && !e.target.closest('.reply-btn')) {
+            document.querySelectorAll('.comment-input-container').forEach(input => {
+                input.style.display = 'none';
+            });
+        }
+    });
+
+    // Show/hide submit button based on input content
+    document.querySelectorAll('.comment-input').forEach(input => {
+        input.addEventListener('input', () => {
+            const submitBtn = input.closest('.comment-input-container').querySelector('.submit-btn');
+            submitBtn.style.display = input.value.trim() ? 'block' : 'none';
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.querySelector('.search-input');
+    const searchBtn = document.querySelector('.search-btn');
+    const forumPosts = document.querySelectorAll('.forum-post');
+
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase();
+        forumPosts.forEach(post => {
+            const title = post.querySelector('h3').textContent.toLowerCase();
+            const content = post.querySelector('.post-content').textContent.toLowerCase();
+            if (title.includes(searchTerm) || content.includes(searchTerm)) {
+                post.style.display = 'block';
+            } else {
+                post.style.display = 'none';
+            }
+        });
+    }
+
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+}
+
+// Like button functionality
+function setupLikeButtons() {
+    const likeButtons = document.querySelectorAll('.like-btn');
+    
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            const countSpan = this.querySelector('span');
+            let count = parseInt(countSpan.textContent);
+            
+            if (this.classList.contains('active')) {
+                // Unlike
+                this.classList.remove('active');
+                icon.style.color = 'var(--text-secondary)';
+                count--;
+            } else {
+                // Like
+                this.classList.add('active');
+                icon.style.color = '#e91e63';
+                count++;
+            }
+            
+            countSpan.textContent = count;
+            
+            // Add animation class
+            icon.classList.add('heart-beat');
+            setTimeout(() => {
+                icon.classList.remove('heart-beat');
+            }, 300);
+        });
+    });
+}
+
+// Initialize like buttons when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupLikeButtons();
+});
+
+function showHelpModal(section) {
+    const helpContent = {
+        health: {
+            title: "Health Section Help",
+            content: `
+                <div class="help-content">
+                    <h4>What you can do here:</h4>
+                    <ul>
+                        <li>Track your child's vital signs (weight, height, temperature)</li>
+                        <li>View growth trends through interactive charts</li>
+                        <li>Record and monitor health metrics over time</li>
+                        <li>Set reminders for health check-ups</li>
+                        <li>Export health data for medical visits</li>
+                    </ul>
+                    <h4>Tips:</h4>
+                    <ul>
+                        <li>Regular measurements help track growth patterns</li>
+                        <li>Use the notes feature to record important observations</li>
+                        <li>Check the trends to identify any significant changes</li>
+                    </ul>
+                </div>
+            `
+        },
+        growth: {
+            title: "Growth Section Help",
+            content: `
+                <div class="help-content">
+                    <h4>What you can do here:</h4>
+                    <ul>
+                        <li>Record developmental milestones</li>
+                        <li>Track progress in different areas (physical, cognitive, social, language)</li>
+                        <li>View a timeline of achievements</li>
+                        <li>Access helpful resources and articles</li>
+                        <li>Watch educational videos</li>
+                    </ul>
+                    <h4>Tips:</h4>
+                    <ul>
+                        <li>Add photos to make milestones more memorable</li>
+                        <li>Use the filter to focus on specific types of development</li>
+                        <li>Check the resources section for expert advice</li>
+                    </ul>
+                </div>
+            `
+        },
+        games: {
+            title: "Games Section Help",
+            content: `
+                <div class="help-content">
+                    <h4>What you can do here:</h4>
+                    <ul>
+                        <li>Play educational games with your child</li>
+                        <li>Track high scores and progress</li>
+                        <li>Choose from different skill-building activities</li>
+                        <li>Monitor learning achievements</li>
+                    </ul>
+                    <h4>Tips:</h4>
+                    <ul>
+                        <li>Games are designed for different age groups</li>
+                        <li>Play together to make learning more fun</li>
+                        <li>Use the games to reinforce learning concepts</li>
+                    </ul>
+                </div>
+            `
+        },
+        community: {
+            title: "Community Section Help",
+            content: `
+                <div class="help-content">
+                    <h4>What you can do here:</h4>
+                    <ul>
+                        <li>Share experiences with other parents</li>
+                        <li>Ask questions and get advice</li>
+                        <li>Read and comment on posts</li>
+                        <li>Connect with the parenting community</li>
+                    </ul>
+                    <h4>Tips:</h4>
+                    <ul>
+                        <li>Use the search feature to find specific topics</li>
+                        <li>Be respectful in your interactions</li>
+                        <li>Share your experiences to help others</li>
+                    </ul>
+                </div>
+            `
+        }
+    };
+
+    const modal = document.createElement('div');
+    modal.className = 'modal help-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>${helpContent[section].title}</h3>
+            ${helpContent[section].content}
+            <button class="close-modal">Close</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.addEventListener('click', () => {
+        modal.remove();
+    });
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
