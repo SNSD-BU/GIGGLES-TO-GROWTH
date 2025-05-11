@@ -2496,4 +2496,103 @@ function validateImportedData(data) {
     if (data.highScores && typeof data.highScores !== 'object') return false;
 
     return true;
-} 
+}
+
+// Video Carousel
+const videos = document.querySelectorAll('.carousel-video');
+const dots = document.querySelectorAll('.video-dot');
+const prevBtn = document.querySelector('.prev-btn');
+const nextBtn = document.querySelector('.next-btn');
+let currentVideoIndex = 0;
+
+function playNextVideo() {
+    videos[currentVideoIndex].classList.remove('active');
+    dots[currentVideoIndex].classList.remove('active');
+    currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+    videos[currentVideoIndex].classList.add('active');
+    dots[currentVideoIndex].classList.add('active');
+    videos[currentVideoIndex].play();
+}
+
+function playPrevVideo() {
+    videos[currentVideoIndex].classList.remove('active');
+    dots[currentVideoIndex].classList.remove('active');
+    currentVideoIndex = (currentVideoIndex - 1 + videos.length) % videos.length;
+    videos[currentVideoIndex].classList.add('active');
+    dots[currentVideoIndex].classList.add('active');
+    videos[currentVideoIndex].play();
+}
+
+function goToVideo(index) {
+    videos[currentVideoIndex].classList.remove('active');
+    dots[currentVideoIndex].classList.remove('active');
+    currentVideoIndex = index;
+    videos[currentVideoIndex].classList.add('active');
+    dots[currentVideoIndex].classList.add('active');
+    videos[currentVideoIndex].play();
+}
+
+// Add event listeners
+videos.forEach(video => {
+    video.addEventListener('ended', playNextVideo);
+});
+
+dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => goToVideo(index));
+});
+
+prevBtn.addEventListener('click', playPrevVideo);
+nextBtn.addEventListener('click', playNextVideo);
+
+// Scroll to Top Button
+const scrollToTopBtn = document.getElementById('scrollToTop');
+
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+        scrollToTopBtn.classList.add('visible');
+    } else {
+        scrollToTopBtn.classList.remove('visible');
+    }
+});
+
+scrollToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+// Settings Button
+const settingsLink = document.querySelector('.settings-link');
+settingsLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showSection('settings');
+});
+
+// Settings Navigation
+const backBtn = document.querySelector('.back-btn');
+const settingsSection = document.querySelector('.settings-section');
+
+function showSettings() {
+    document.body.classList.add('settings-active');
+    settingsSection.classList.add('active');
+    backBtn.style.display = 'flex';
+    showSection('settings');
+}
+
+function hideSettings() {
+    document.body.classList.remove('settings-active');
+    settingsSection.classList.remove('active');
+    backBtn.style.display = 'none';
+    showSection('health'); // Return to health section by default
+}
+
+settingsLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showSettings();
+});
+
+backBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    hideSettings();
+});
