@@ -101,6 +101,70 @@
                     </div>
                 </div>
 
+                <!-- Vaccination Calendar Section -->
+                <div class="vaccination-calendar">
+                    <div class="section-header">
+                        <h3>Vaccination Schedule</h3>
+                    </div>
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button class="calendar-nav-btn prev-month">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h4 class="current-month">September 2023</h4>
+                            <button class="calendar-nav-btn next-month">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-grid">
+                            <div class="calendar-weekdays">
+                                <span>Sun</span>
+                                <span>Mon</span>
+                                <span>Tue</span>
+                                <span>Wed</span>
+                                <span>Thu</span>
+                                <span>Fri</span>
+                                <span>Sat</span>
+                            </div>
+                            <div class="calendar-days"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vaccination Modal -->
+                <div class="vaccination-modal">
+                    <div class="modal-content">
+                        <h3>Vaccination Details</h3>
+                        <form id="vaccination-form">
+                            <div class="form-group">
+                                <label for="vaccine-name">Vaccine Name</label>
+                                <input type="text" id="vaccine-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="vaccine-date">Date</label>
+                                <input type="date" id="vaccine-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clinic-location">Clinic Location</label>
+                                <input type="text" id="clinic-location" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="required-items">Required Items</label>
+                                <textarea id="required-items" rows="3" placeholder="List items to bring..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="additional-notes">Additional Notes</label>
+                                <textarea id="additional-notes" rows="3" placeholder="Add any additional notes..."></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="delete-vaccination-btn">Delete</button>
+                                <button type="submit" class="save-vaccination-btn">Save</button>
+                                <button type="button" class="close-modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- Vital Signs Modals -->
                 <div class="vital-signs-modal" id="heart-rate-modal">
                     <div class="modal-content">
