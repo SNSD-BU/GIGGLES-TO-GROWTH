@@ -2134,38 +2134,64 @@ input:checked + .slider:before {
 /* Notification Styles */
 .notification {
     position: fixed;
-    bottom: 20px;
+    top: 20px;
     right: 20px;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    color: white;
-    font-weight: 500;
-    z-index: 2000;
-    animation: slideIn 0.3s ease;
-    box-shadow: 0 4px 6px var(--shadow-color);
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 3000;
+    max-width: 400px;
+    border: 2px solid var(--primary-color);
+    animation: slideIn 0.3s ease-out;
 }
 
-.notification.success {
-    background-color: var(--success-color);
+.notification h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
-.notification.error {
-    background-color: var(--danger-color);
+.notification ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.notification.info {
-    background-color: var(--secondary-color);
+.notification li {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.notification li:last-child {
+    margin-bottom: 0;
+}
+
+.notification li::before {
+    content: '💉';
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 @keyframes slideIn {
     from {
-        transform: translateY(100%);
+        transform: translateX(100%);
         opacity: 0;
     }
     to {
-        transform: translateY(0);
+        transform: translateX(0);
         opacity: 1;
     }
+}
+
+/* Dark mode adjustments */
+body.dark-mode .notification {
+    background: var(--card-bg);
+    border-color: var(--primary-color);
 }
 
 /* Form Styles */
@@ -4483,5 +4509,273 @@ body.dark-mode .development-articles .article-content p {
 
 #health-input-form .submit-btn {
     margin-top: 0.5rem;
+}
+
+/* Vaccination Calendar Styles */
+.vaccination-calendar {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.calendar-container {
+    background: var(--bg-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.calendar-nav-btn {
+    background: var(--input-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar-nav-btn:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.current-month {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.calendar-grid {
+    width: 100%;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-weekdays span {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: var(--bg-color);
+}
+
+.calendar-day:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.calendar-day.has-vaccination {
+    background: var(--primary-color);
+    color: white;
+}
+
+.calendar-day.has-vaccination::after {
+    content: '💉';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 0.8rem;
+}
+
+.calendar-day.today {
+    border: 2px solid var(--primary-color);
+    font-weight: 600;
+}
+
+.calendar-day.other-month {
+    opacity: 0.5;
+}
+
+/* Vaccination Modal Styles */
+.vaccination-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.vaccination-modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.vaccination-modal .modal-content {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    border: 2px solid var(--primary-color);
+}
+
+.vaccination-modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.vaccination-modal h3 {
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.vaccination-modal .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.vaccination-modal label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.vaccination-modal input,
+.vaccination-modal textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.vaccination-modal input:focus,
+.vaccination-modal textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.vaccination-modal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.vaccination-modal .delete-vaccination-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.vaccination-modal .save-vaccination-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.vaccination-modal .close-modal {
+    background: var(--text-secondary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.vaccination-modal .delete-vaccination-btn:hover,
+.vaccination-modal .save-vaccination-btn:hover,
+.vaccination-modal .close-modal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .calendar-day {
+        font-size: 0.9rem;
+        padding: 0.25rem;
+    }
+
+    .vaccination-modal .modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    .vaccination-modal .modal-footer {
+        flex-direction: column;
+    }
+
+    .vaccination-modal .delete-vaccination-btn,
+    .vaccination-modal .save-vaccination-btn,
+    .vaccination-modal .close-modal {
+        width: 100%;
+    }
+}
+
+/* Dark mode adjustments */
+body.dark-mode .calendar-day {
+    background: var(--card-bg);
+}
+
+body.dark-mode .calendar-day:hover {
+    background: var(--primary-color);
+}
+
+body.dark-mode .calendar-day.has-vaccination {
+    background: var(--primary-color);
 }
   
