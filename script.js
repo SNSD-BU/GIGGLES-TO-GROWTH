@@ -82,6 +82,228 @@ let highScores = {
     shapes: JSON.parse(localStorage.getItem('shapesHighScores')) || []
 };
 
+// Vaccination Calendar Data Management
+let vaccinationData = JSON.parse(localStorage.getItem('vaccinationData')) || [];
+let currentDate = new Date();
+let selectedDate = null;
+
+// Initialize vaccination calendar
+function initializeVaccinationCalendar() {
+    const calendarDays = document.querySelector('.calendar-days');
+    const currentMonthElement = document.querySelector('.current-month');
+    const prevMonthBtn = document.querySelector('.prev-month');
+    const nextMonthBtn = document.querySelector('.next-month');
+    const vaccinationModal = document.querySelector('.vaccination-modal');
+    const vaccinationForm = document.getElementById('vaccination-form');
+    const closeModalBtn = document.querySelector('.vaccination-modal .close-modal');
+    const deleteVaccinationBtn = document.querySelector('.delete-vaccination-btn');
+
+    // Update calendar display
+    function updateCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        // Update month display
+        currentMonthElement.textContent = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
+        
+        // Clear calendar
+        calendarDays.innerHTML = '';
+        
+        // Get first day of month and total days
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const totalDays = lastDay.getDate();
+        const startingDay = firstDay.getDay();
+        
+        // Add previous month's days
+        const prevMonthLastDay = new Date(year, month, 0).getDate();
+        for (let i = startingDay - 1; i >= 0; i--) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day other-month';
+            dayElement.textContent = prevMonthLastDay - i;
+            calendarDays.appendChild(dayElement);
+        }
+        
+        // Add current month's days
+        const today = new Date();
+        for (let i = 1; i <= totalDays; i++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            dayElement.textContent = i;
+            
+            // Check if it's today
+            if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                dayElement.classList.add('today');
+            }
+            
+            // Check if it has a vaccination
+            const currentDate = new Date(year, month, i);
+            const vaccination = vaccinationData.find(v => {
+                const vDate = new Date(v.date);
+                return vDate.toDateString() === currentDate.toDateString();
+            });
+            
+            if (vaccination) {
+                dayElement.classList.add('has-vaccination');
+            }
+            
+            // Add click event
+            dayElement.addEventListener('click', () => {
+                selectedDate = currentDate;
+                showVaccinationModal(vaccination);
+            });
+            
+            calendarDays.appendChild(dayElement);
+        }
+        
+        // Add next month's days
+        const remainingDays = 42 - (startingDay + totalDays); // 42 = 6 rows * 7 days
+        for (let i = 1; i <= remainingDays; i++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day other-month';
+            dayElement.textContent = i;
+            calendarDays.appendChild(dayElement);
+        }
+    }
+
+    // Add month navigation event listeners
+    prevMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        updateCalendar();
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        updateCalendar();
+    });
+
+    // Add close modal event listener
+    closeModalBtn.addEventListener('click', () => {
+        vaccinationModal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    // Initial calendar update
+    updateCalendar();
+    
+    // Create day element
+    function createDayElement(day, className) {
+        const dayElement = document.createElement('div');
+        dayElement.className = `calendar-day ${className}`;
+        dayElement.textContent = day;
+        
+        dayElement.addEventListener('click', () => {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            selectedDate = new Date(year, month, day);
+            
+            // Find vaccination for selected date
+            const vaccination = vaccinationData.find(v => {
+                const vDate = new Date(v.date);
+                return vDate.toDateString() === selectedDate.toDateString();
+            });
+            
+            // Show modal with vaccination details
+            showVaccinationModal(vaccination);
+        });
+        
+        return dayElement;
+    }
+    
+    // Show vaccination modal
+    function showVaccinationModal(vaccination = null) {
+        const modal = document.querySelector('.vaccination-modal');
+        const form = document.getElementById('vaccination-form');
+        const dateInput = document.getElementById('vaccine-date');
+        
+        // Set date input to selected date
+        if (selectedDate) {
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+        }
+        
+        if (vaccination) {
+            // Fill form with vaccination details
+            document.getElementById('vaccine-name').value = vaccination.name;
+            document.getElementById('clinic-location').value = vaccination.location;
+            document.getElementById('required-items').value = vaccination.items;
+            document.getElementById('additional-notes').value = vaccination.notes;
+            deleteVaccinationBtn.style.display = 'block';
+        } else {
+            // Clear form
+            form.reset();
+            // Reset the date input to the selected date
+            if (selectedDate) {
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+                dateInput.value = `${year}-${month}-${day}`;
+            }
+            deleteVaccinationBtn.style.display = 'none';
+        }
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Handle form submission
+    vaccinationForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const vaccination = {
+            name: document.getElementById('vaccine-name').value,
+            date: document.getElementById('vaccine-date').value,
+            location: document.getElementById('clinic-location').value,
+            items: document.getElementById('required-items').value,
+            notes: document.getElementById('additional-notes').value
+        };
+        
+        // Update or add vaccination
+        const index = vaccinationData.findIndex(v => {
+            const vDate = new Date(v.date);
+            return vDate.toDateString() === selectedDate.toDateString();
+        });
+        
+        if (index !== -1) {
+            vaccinationData[index] = vaccination;
+        } else {
+            vaccinationData.push(vaccination);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('vaccinationData', JSON.stringify(vaccinationData));
+        
+        // Update calendar
+        updateCalendar();
+        
+        // Close modal
+        vaccinationModal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+    
+    // Handle delete vaccination
+    deleteVaccinationBtn.addEventListener('click', () => {
+        if (selectedDate) {
+            vaccinationData = vaccinationData.filter(v => {
+                const vDate = new Date(v.date);
+                return vDate.toDateString() !== selectedDate.toDateString();
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('vaccinationData', JSON.stringify(vaccinationData));
+            
+            // Update calendar
+            updateCalendar();
+            
+            // Close modal
+            vaccinationModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing application...');
@@ -108,8 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Community Section Interactions
     setupCommunityInteractions();
 
-    // Like button functionality
-    setupLikeButtons();
+    // Initialize vaccination calendar
+    initializeVaccinationCalendar();
 });
 
 // Navigation setup
@@ -214,7 +436,7 @@ function setupFormListeners() {
     
     // Metric type change
     if (metricTypeSelect) {
-        metricTypeSelect.addEventListener('change', updateUnitDisplay);
+    metricTypeSelect.addEventListener('change', updateUnitDisplay);
     }
     
     // Time filter changes
@@ -376,7 +598,7 @@ function setDefaultDateTime() {
 function handleHealthSubmit(e) {
     e.preventDefault();
     console.log('Handling health form submission...');
-
+    
     const metricType = metricTypeSelect.value;
     const value = parseFloat(metricValueInput.value);
     const date = metricDateInput.value;
@@ -405,7 +627,7 @@ function handleHealthSubmit(e) {
 function addHealthRecord(record) {
     const metricType = metricTypeSelect.value;
     console.log('Adding health record:', record, 'for metric:', metricType);
-
+    
     // Add record to healthData
     healthData[metricType].push(record);
     
@@ -794,13 +1016,13 @@ newPostBtn.addEventListener('click', () => {
                                             <div class="reply-actions">
                                                 <button class="like-btn" data-reply-id="${reply.id}">
                                                     <i class="fas fa-heart"></i> ${reply.likes}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
+                                </button>
+                            </div>
                         </div>
+                    `).join('')}
+                </div>
+                            ` : ''}
+                </div>
                     `).join('')}
                 </div>
                 <form class="comment-input-container">
@@ -1856,13 +2078,13 @@ function renderPosts() {
                                             <div class="reply-actions">
                                                 <button class="like-btn" data-reply-id="${reply.id}">
                                                     <i class="fas fa-heart"></i> ${reply.likes}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
+                                </button>
+                            </div>
                         </div>
+                    `).join('')}
+                </div>
+                            ` : ''}
+                </div>
                     `).join('')}
                 </div>
                 <form class="comment-input-container">
@@ -2185,13 +2407,13 @@ function filterPosts(searchTerm) {
                                             <div class="reply-actions">
                                                 <button class="like-btn" data-reply-id="${reply.id}">
                                                     <i class="fas fa-heart"></i> ${reply.likes}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
+                                </button>
+                            </div>
                         </div>
+                    `).join('')}
+                </div>
+                            ` : ''}
+                </div>
                     `).join('')}
                 </div>
                 <form class="comment-input-container">
@@ -2331,7 +2553,7 @@ function loadSettings() {
     if (darkModeToggle) {
         darkModeToggle.checked = appSettings.darkMode;
         if (appSettings.darkMode) {
-            document.body.classList.add('dark-mode');
+        document.body.classList.add('dark-mode');
             document.documentElement.setAttribute('data-theme', 'dark');
         }
     }
@@ -2415,7 +2637,7 @@ function showPrivacyPolicy() {
                 </section>
 
                 <section>
-                    <h4>Data Usage</h4>
+                <h4>Data Usage</h4>
                     <p>Your data is used exclusively to:</p>
                     <ul>
                         <li><strong>Track Progress:</strong> Monitor your child's development and growth</li>
@@ -3209,4 +3431,190 @@ function showHelpModal(section) {
             modal.remove();
         }
     });
+}
+
+// Add this to your existing CSS
+const modalStyle = document.createElement('style');
+modalStyle.textContent = `
+    .vaccination-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .vaccination-modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .vaccination-modal .modal-content {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 1.5rem;
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+    }
+
+    .vaccination-modal.active .modal-content {
+        transform: translateY(0);
+    }
+
+    .vaccination-modal h3 {
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    .vaccination-modal .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .vaccination-modal label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .vaccination-modal input,
+    .vaccination-modal textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text-color);
+        font-size: 0.95rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .vaccination-modal input:focus,
+    .vaccination-modal textarea:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    .vaccination-modal textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .vaccination-modal .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .vaccination-modal .submit-btn,
+    .vaccination-modal .delete-vaccination-btn,
+    .vaccination-modal .close-modal {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .vaccination-modal .submit-btn {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .vaccination-modal .submit-btn:hover {
+        background: var(--primary-color-dark);
+    }
+
+    .vaccination-modal .delete-vaccination-btn {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    .vaccination-modal .delete-vaccination-btn:hover {
+        background: var(--danger-color-dark);
+    }
+
+    .vaccination-modal .close-modal {
+        background: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .vaccination-modal .close-modal:hover {
+        background: var(--text-muted);
+    }
+
+    @media (max-width: 480px) {
+        .vaccination-modal .modal-content {
+            padding: 1.25rem;
+            width: 95%;
+        }
+
+        .vaccination-modal .modal-buttons {
+            flex-direction: column;
+        }
+
+        .vaccination-modal .submit-btn,
+        .vaccination-modal .delete-vaccination-btn,
+        .vaccination-modal .close-modal {
+            width: 100%;
+        }
+    }
+`;
+document.head.appendChild(modalStyle);
+
+// Show vaccination modal
+function showVaccinationModal(vaccination = null) {
+    const modal = document.querySelector('.vaccination-modal');
+    const form = document.getElementById('vaccination-form');
+    const dateInput = document.getElementById('vaccine-date');
+    
+    // Set date input to selected date
+    if (selectedDate) {
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
+        dateInput.value = `${year}-${month}-${day}`;
+    }
+    
+    if (vaccination) {
+        // Fill form with vaccination details
+        document.getElementById('vaccine-name').value = vaccination.name;
+        document.getElementById('clinic-location').value = vaccination.location;
+        document.getElementById('required-items').value = vaccination.items;
+        document.getElementById('additional-notes').value = vaccination.notes;
+        deleteVaccinationBtn.style.display = 'block';
+    } else {
+        // Clear form
+        form.reset();
+        // Reset the date input to the selected date
+        if (selectedDate) {
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+        }
+        deleteVaccinationBtn.style.display = 'none';
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
