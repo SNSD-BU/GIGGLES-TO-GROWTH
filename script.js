@@ -3618,3 +3618,283 @@ function showVaccinationModal(vaccination = null) {
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
+
+// Add this to your existing CSS
+const calendarStyle = document.createElement('style');
+calendarStyle.textContent = `
+    .calendar-container {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        padding: 0.5rem;
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        padding: 0 0.25rem;
+    }
+
+    .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .calendar-nav button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .calendar-nav button:hover {
+        background: var(--primary-color-dark);
+    }
+
+    .current-month {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .calendar-days-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.15rem;
+        margin-bottom: 0.15rem;
+        padding: 0 0.15rem;
+    }
+
+    .calendar-days-header span {
+        font-size: 0.65rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-align: center;
+        padding: 0.05rem;
+        letter-spacing: -0.5px;
+    }
+
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.15rem;
+        width: 100%;
+        padding: 0 0.15rem;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+    }
+
+    .calendar-day:hover {
+        background: var(--primary-color-light);
+        border-color: var(--primary-color);
+    }
+
+    .calendar-day.today {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .calendar-day.has-vaccination {
+        background: var(--success-color-light);
+        border-color: var(--success-color);
+        color: var(--success-color);
+    }
+
+    .calendar-day.other-month {
+        opacity: 0.5;
+        background: var(--card-bg);
+    }
+
+    /* Vaccination Modal Styles */
+    .vaccination-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 0.5rem;
+    }
+
+    .vaccination-modal .modal-content {
+        background: var(--card-bg);
+        border-radius: 8px;
+        padding: 1rem;
+        width: 100%;
+        max-width: 400px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .vaccination-modal h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+    .vaccination-modal .form-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .vaccination-modal label {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--text-color);
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .vaccination-modal input,
+    .vaccination-modal textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--input-bg);
+        color: var(--text-color);
+        font-size: 0.85rem;
+    }
+
+    .vaccination-modal .modal-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .vaccination-modal .submit-btn,
+    .vaccination-modal .delete-vaccination-btn,
+    .vaccination-modal .close-modal {
+        padding: 0.5rem 0.75rem;
+        border: none;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+
+    @media (max-width: 480px) {
+        .calendar-container {
+            padding: 0.25rem;
+        }
+
+        .calendar-header {
+            margin-bottom: 0.25rem;
+            padding: 0 0.15rem;
+        }
+
+        .calendar-nav button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .current-month {
+            font-size: 0.85rem;
+        }
+
+        .calendar-days-header {
+            gap: 0.1rem;
+            padding: 0 0.1rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .calendar-days-header span {
+            font-size: 0.6rem;
+            padding: 0.02rem;
+            letter-spacing: -0.5px;
+        }
+
+        .calendar-days {
+            gap: 0.1rem;
+            padding: 0 0.1rem;
+        }
+
+        .calendar-day {
+            font-size: 0.7rem;
+            border-radius: 3px;
+        }
+
+        .calendar-weekdays{
+            gap: 0.00001rem;
+        }
+
+        .calendar-weekdays span{
+            font-size: .95rem;
+            padding: 4px;
+        }
+
+        /* Mobile Modal Styles */
+        .vaccination-modal {
+            padding: 0.25rem;
+        }
+
+        .vaccination-modal .modal-content {
+            padding: 0.75rem;
+            border-radius: 6px;
+        }
+
+        .vaccination-modal h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .vaccination-modal .form-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .vaccination-modal label {
+            font-size: 0.8rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .vaccination-modal input,
+        .vaccination-modal textarea {
+            padding: 0.4rem;
+            font-size: 0.8rem;
+        }
+
+        .vaccination-modal .modal-buttons {
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .vaccination-modal .submit-btn,
+        .vaccination-modal .delete-vaccination-btn,
+        .vaccination-modal .close-modal {
+            padding: 0.4rem;
+            font-size: 0.8rem;
+            width: 100%;
+        }
+    }
+`;
+document.head.appendChild(calendarStyle);
