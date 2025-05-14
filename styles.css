@@ -321,6 +321,13 @@ p {
         padding: 0.5rem 1rem;
     }
 
+    .nav-brand {
+        gap: 0.8rem;
+    }
+    .nav-brand h1{
+        font-size: 1.5rem;
+    }
+
     .secondary-nav {
         position: sticky;
         top: 60px;
@@ -4593,13 +4600,16 @@ body.dark-mode .development-articles .article-content p {
 
 .calendar-day:hover {
     background: var(--primary-color);
-    color: white;
+    color: rgb(0, 0, 0);
     transform: translateY(-2px);
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .calendar-day.has-vaccination {
     background: var(--primary-color);
     color: white;
+    border: 2px solid;
 }
 
 .calendar-day.has-vaccination::after {
@@ -4607,7 +4617,7 @@ body.dark-mode .development-articles .article-content p {
     position: absolute;
     bottom: 2px;
     right: 2px;
-    font-size: 0.8rem;
+    font-size: 1.5rem;
 }
 
 .calendar-day.today {
