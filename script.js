@@ -738,9 +738,6 @@ function updateRecords(metricType) {
                 ${record.notes ? `<span class="record-notes">${record.notes}</span>` : ''}
             </div>
             <div class="record-actions">
-                <button class="edit-btn" data-timestamp="${record.timestamp}">
-                    <i class="fas fa-edit"></i>
-                </button>
                 <button class="delete-btn" data-timestamp="${record.timestamp}">
                     <i class="fas fa-trash"></i>
                 </button>
